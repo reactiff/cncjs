@@ -1,57 +1,40 @@
-/*
-  This file must be included on the main application page, served by the wireless CNC controller module.
-*/
+/* This file must be included on the main application page, served by the wireless CNC controller module. */
 
-var websock;  //we use web sockets for fast communication with the controller
+var cncjs = cncjs || new (function () {
 
-function start() {
-  websock = new WebSocket('ws://' + window.location.hostname + ':81/');
-  websock.onopen = function(evt) { console.log('websock open'); };
-  websock.onclose = function(evt) { console.log('websock close'); };
-  websock.onerror = function(evt) { console.log(evt); };
-  websock.onmessage = function(evt) {
-    console.log(evt);
-    var e = document.getElementById('ledstatus');
-    if (evt.data === 'ledon') {
-      e.style.color = 'red';
-    }
-    else if (evt.data === 'ledoff') {
-      e.style.color = 'black';
-    }
-    else {
-      console.log('unknown event');
-    }
-  };
-}
-function toggle(e) {10
-  if(e.innerHTML == 'Off'){
-    websock.send('exe.pin.' + e.getAttribute('pin') + '.1');  
-    e.innerHTML = 'On';
-  }
-  else {
-    websock.send('exe.pin.' + e.getAttribute('pin') + '.0');  
-    e.innerHTML = 'Off';
-  }
-}
-function engagePWM(e) {
-  var ondur = $(e).attr('ondurinput') ? 
-              $('#'+$(e).attr('ondurinput')).val().padStart(3,"0") : 
-              $(e).attr('ondur').padStart(3,"0");
-              
-  var offdur = $(e).attr('offdurinput') ? 
-              $('#'+$(e).attr('offdurinput')).val().padStart(3,"0") : 
-              $(e).attr('offdur').padStart(3,"0");
-
+  var websock;  //we use web sockets for fast communication with the controller
   
-  var stepdivisor =   $(e).attr('stepdivisor') 
-                    ? $(e).attr('stepdivisor') 
-                    : (
-                        $(e).attr('stepdivisorinput') 
-                      ? $("input:radio[name='" + $(e).attr('stepdivisorinput') + "']:checked").val()
-                      : null
+  var init = function() {
+      websock = new WebSocket('ws://' + window.location.hostname + ':81/');
+      websock.onopen = function(evt) { console.log('websock open'); };
+      websock.onclose = function(evt) { 
+        console.log('websock close'); 
+        alert('WebSock closed!');
+      };
+      websock.onerror = function(evt) { 
+          console.log(evt); 
+          alert('WebSock error!\n\t'+evt.toString());
+      };
+      websock.onmessage = function(evt) {
+        console.log(evt);
+        var data = evt.data;
+       
+        //to do: Handle messages from CNC controller
+      };
+    };
+ 
+  var startPWM = function (e) {
+    
+    var ondur = $(e).attr('ondurinput') ? $('#'+$(e).attr('ondurinput')).val().padStart(3,"0") : $(e).attr('ondur').padStart(3,"0");
+    var offdur = $(e).attr('offdurinput') ? $('#'+$(e).attr('offdurinput')).val().padStart(3,"0") : $(e).attr('offdur').padStart(3,"0");
+    var stepdivisor =   $(e).attr('stepdivisor') ? $(e).attr('stepdivisor') : (
+                          $(e).attr('stepdivisorinput') 
+                        ? $("input:radio[name='" + $(e).attr('stepdivisorinput') + "']:checked").val()
+                        : null
                     );
   
-  var pwmpin = e.getAttribute('pwmpin').padStart(2,"0");
+    var pwmpin = e.getAttribute('pwmpin').padStart(2,"0");
+    
   websock.send('exe.pin.' + pwmpin + '.0');  //disengage
   websock.send('exe.pin.' + e.getAttribute('dirpin').padStart(2,"0") + '.' + e.getAttribute('dir'));  //dir
 
@@ -85,6 +68,42 @@ function engagePWM(e) {
   
   websock.send('pwm.pin.' + pwmpin + '.' + ondur + '.' + offdur + "." + $(e).attr('easing'));  
 }
+    
+  return new function () {
+      
+    var _this = this; //save the instance reference because 'this' will always change
+    
+    //these are low level utils
+    _this.readPin = function(){ };
+    
+    _this.writePin = function(pin, data){ 
+      if(data<0 || data>1) throw "Invalid data param";
+      websock.send('exe.pin.' + pin.padStart(2,'0') + '.1');  
+    };
+    
+    
+    
+    
+    init();
+      
+    return _this;
+      
+  };
+})();
+
+
+function toggle(e) {
+  if(e.innerHTML == 'Off'){
+    cncjs.writePin(e.getAttribute('pin'), 1);
+    e.innerHTML = 'On';
+  }
+  else {
+    cncjs.writePin(e.getAttribute('pin'), 0);
+    e.innerHTML = 'Off';
+  }
+}
+
+
 function disengagePWM(e) {
   if($(e).attr('easing').length>0){
     websock.send('pwm.pin.' + e.getAttribute('pwmpin').padStart(2,"0") + '.000.000.' + $(e).attr('easing'));  
