@@ -22,64 +22,96 @@ var cncjs = cncjs || new (function () {
         //to do: Handle messages from CNC controller
       };
     };
- 
+  
+  var send = function(/* a comma separated argument list */){
+    var argarray = [].slice.apply(arguments).slice(0);
+    websock.send(argarray.join('.'));  
+  }
+  
+  var readPin = function(pin) {
+      //this needs to return a promise
+    };
+  
+  var writePin = function(pin, data){ 
+      send('exe', 'pin', pin.padStart(2,'0'), data);
+    };
+     
   var startPWM = function (e) {
     
     var ondur = $(e).attr('ondurinput') ? $('#'+$(e).attr('ondurinput')).val().padStart(3,"0") : $(e).attr('ondur').padStart(3,"0");
     var offdur = $(e).attr('offdurinput') ? $('#'+$(e).attr('offdurinput')).val().padStart(3,"0") : $(e).attr('offdur').padStart(3,"0");
-    var stepdivisor =   $(e).attr('stepdivisor') ? $(e).attr('stepdivisor') : (
-                          $(e).attr('stepdivisorinput') 
-                        ? $("input:radio[name='" + $(e).attr('stepdivisorinput') + "']:checked").val()
-                        : null
-                    );
-  
     var pwmpin = e.getAttribute('pwmpin').padStart(2,"0");
     
-  websock.send('exe.pin.' + pwmpin + '.0');  //disengage
-  websock.send('exe.pin.' + e.getAttribute('dirpin').padStart(2,"0") + '.' + e.getAttribute('dir'));  //dir
+    writePin(pwmpin, 0);  //disengage anything currently running on the pin
+    
+    var dirpin = $(e).attr('dirpin').padStart(2,"0"); 
+    var dir = $(e).attr('dir'); 
 
-  //set step size
-  if(stepdivisor){
-    var stepbits;
-    switch(parseInt(stepdivisor)){
-      case 1:
-        stepbits = '000';
-        break;
-      case 2:
-        stepbits = '100';
-        break;
-      case 4:
-        stepbits = '010';
-        break;
-      case 8:
-        stepbits = '110';
-        break;
-      case 16:
-        stepbits = '111';
-        break;
-      default:
-        break;
+    writePin(dirpin, dir);
+
+    //See if the element has any attributes pertaining to step size
+    //1 represents FULL step.  Divisor acts as a denominator in the fraction, so 1/1, 1/2, 1/4 and so on...
+    var stepdivisor = 
+                      $(e).attr('stepdivisor')            // if stepdivisor attribute is present...
+                    ? 
+                      $(e).attr('stepdivisor')            // then grab its value
+                    :                                     // else...
+                          $(e).attr('stepdivisorinput')   // if radio group name is specified
+                        ? 
+                                                          // then grab the value of the selected radio button
+                          $("input:radio[name='" + $(e).attr('stepdivisorinput') + "']:checked").val()
+    
+                        : null;                           // otherwise return null so we know there was nothing specified
+      
+    //set step size
+    if(stepdivisor){
+      var stepbits;
+      switch(parseInt(stepdivisor)){
+        case 1:
+          stepbits = '000';
+          break;
+        case 2:
+          stepbits = '100';
+          break;
+        case 4:
+          stepbits = '010';
+          break;
+        case 8:
+          stepbits = '110';
+          break;
+        case 16:
+          stepbits = '111';
+          break;
+        default:
+          break;
+      }
+      writePin($(e).attr('ms1'), stepbits[0]);
+      writePin($(e).attr('ms2'), stepbits[1]);
+      writePin($(e).attr('ms3'), stepbits[2]);
     }
-    websock.send('exe.pin.' + $(e).attr('ms1').padStart(2,"0") + '.' + stepbits[0]);
-    websock.send('exe.pin.' + $(e).attr('ms2').padStart(2,"0") + '.' + stepbits[1]);
-    websock.send('exe.pin.' + $(e).attr('ms3').padStart(2,"0") + '.' + stepbits[2]);
-  }
   
+    send('pwm', 'pin', pwmpin, ondur, offdur, $(e).attr('easing'));  
+  };
   
-  websock.send('pwm.pin.' + pwmpin + '.' + ondur + '.' + offdur + "." + $(e).attr('easing'));  
-}
+  var stopPWM = function(e) {
+    if($(e).attr('easing')){
+      send('pwm.pin', $(e).attr('pwmpin').padStart(2,"0"), '000.000', $(e).attr('easing'));  
+    }
+    else
+    {
+      writePin($(e).attr('pwmpin'), 0);  
+    }
+  };
+  
     
   return new function () {
       
     var _this = this; //save the instance reference because 'this' will always change
     
     //these are low level utils
-    _this.readPin = function(){ };
+    _this.readPin = readPin;
     
-    _this.writePin = function(pin, data){ 
-      if(data<0 || data>1) throw "Invalid data param";
-      websock.send('exe.pin.' + pin.padStart(2,'0') + '.1');  
-    };
+    _this.writePin = writePin;
     
     
     
@@ -104,15 +136,6 @@ function toggle(e) {
 }
 
 
-function disengagePWM(e) {
-  if($(e).attr('easing').length>0){
-    websock.send('pwm.pin.' + e.getAttribute('pwmpin').padStart(2,"0") + '.000.000.' + $(e).attr('easing'));  
-  }
-  else
-  {
-    websock.send('exe.pin.' + e.getAttribute('pwmpin').padStart(2,"0") + '.0');  
-  }
-}
 function stepPWM(e) {
   var dirpin =$('#movedirpin').val().padStart(2,"0");
   var pwmpin =$('#movepwmpin').val().padStart(2,"0");
