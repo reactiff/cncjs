@@ -1,8 +1,19 @@
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 
 var cncjs = cncjs || new (function () {
-
+  
+  
+    
   var websock;  //we use web sockets for fast communication with the controller
+  
+  
+  var Axis = {
+    x : { pins : { ms1 : 0, ms2 : 1, ms3 : 2, direction: 3, pwm: 4 } },
+    y : { pins : { ms1 : 8, ms2 : 9, ms3 : 10, direction: 11, pwm: 12 } },
+    z : { pins : { ms1 : 24, ms2 : 25, ms3 : 26, direction: 27, pwm: 28 } }
+  };
+  
+  var Spindle
   
   var init = function() {
       websock = new WebSocket('ws://' + window.location.hostname + ':81/');
@@ -21,6 +32,46 @@ var cncjs = cncjs || new (function () {
        
         //to do: Handle messages from CNC controller
       };
+    
+      //bind keyboard shortcuts
+      $("window").keydown(function(e) {
+        var stepbits = '000'; //default is FULL step
+        if(e.ctrlKey){
+          if(e.shiftKey){ stepbits = '111'; //Ctrl + Shift for 1/16th step
+          } else { stepbits = '010'; //Ctrl or Shift alone give Quarter step
+          }
+        } else if(e.shiftKey){ stepbits = '010';   //Ctrl or Shift alone give Quarter step }
+                     
+        if(e.keyCode == 37) { // left
+          //move X axis left
+          writePin($(e).attr('ms1'), stepbits[0]);
+      writePin($(e).attr('ms2'), stepbits[1]);
+      writePin($(e).attr('ms3'), stepbits[2]);
+    }
+  
+    send('pwm', 'pin', pwmpin, ondur, offdur, $(e).attr('easing'));  
+        }
+        else if(e.keyCode == 38) { // up/away
+          if(e.altKey) {
+            //move Z axis UP
+          }
+          else{
+            //move Y axis away
+          }
+        }
+        else if(e.keyCode == 39) { // right
+          //move X axis right
+        }
+        else if(e.keyCode == 40) { // down/towards
+          if(e.altKey) {
+            //move Z axis DOWN
+          }
+          else{
+            //move Y axis towards
+          }
+        }
+      });
+    
     };
   
   var send = function(/* a comma separated argument list */){
