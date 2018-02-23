@@ -107,14 +107,11 @@ var cncjs = cncjs || new (function () {
   return new function () {
       
     var _this = this; //save the instance reference because 'this' will always change
-    
-    //these are low level utils
+   
     _this.readPin = readPin;
-    
     _this.writePin = writePin;
-    
-    
-    
+    _this.startPWM = startPWM;
+    _this.stopPWM = stopPWM;
     
     init();
       
