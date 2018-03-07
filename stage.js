@@ -10,7 +10,8 @@ var LinearStage = function (options) {
       pwm: options.pins.pwm
     };
     
-    var msmm = options.microstepspermm;
+    var measurements = options.measurements;
+    //var msmm = options.microstepspermm;
     
     return new function () {
         
