@@ -1,19 +1,16 @@
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 
 var cncjs = cncjs || new (function () {
-  
-  
     
   var websock;  //we use web sockets for fast communication with the controller
-  
-  
+    
   var Axis = {
-    x : { pins : { ms1 : 0, ms2 : 1, ms3 : 2, direction: 3, pwm: 4 } },
-    y : { pins : { ms1 : 8, ms2 : 9, ms3 : 10, direction: 11, pwm: 12 } },
-    z : { pins : { ms1 : 24, ms2 : 25, ms3 : 26, direction: 27, pwm: 28 } }
+    x : { pins : { ms1 : 0, ms2 : 1, ms3 : 2, direction: 3, pwm: 4 }, measurements: { mspmm: 2800 } },
+    y : { pins : { ms1 : 8, ms2 : 9, ms3 : 10, direction: 11, pwm: 12 }, measurements: { mspmm: 5000 }  },
+    z : { pins : { ms1 : 24, ms2 : 25, ms3 : 26, direction: 27, pwm: 28 }, measurements: { mspmm: 1000 }  }
   };
   
-  var Spindle
+  var Spindle = {};
   
   var init = function() {
       websock = new WebSocket('ws://' + window.location.hostname + ':81/');
@@ -45,11 +42,11 @@ var cncjs = cncjs || new (function () {
         if(e.keyCode == 37) { // left
           //move X axis left
           writePin($(e).attr('ms1'), stepbits[0]);
-      writePin($(e).attr('ms2'), stepbits[1]);
-      writePin($(e).attr('ms3'), stepbits[2]);
-    }
+          writePin($(e).attr('ms2'), stepbits[1]);
+          writePin($(e).attr('ms3'), stepbits[2]);
+        }
   
-    send('pwm', 'pin', pwmpin, ondur, offdur, $(e).attr('easing'));  
+        send('pwm', 'pin', pwmpin, ondur, offdur, $(e).attr('easing'));  
         }
         else if(e.keyCode == 38) { // up/away
           if(e.altKey) {
