@@ -51,10 +51,19 @@ var cncjs = cncjs || new (function () {
         })
     };
     
+    var keymap = {};
+    
     var _init = function () {
         
         //bind keyboard shortcuts
         $(document).keydown(function (e) {
+            
+            if(keymap[e.keyCode]){
+                return;
+            }
+            
+            keymap[e.keyCode] = 1;
+            
             var stepsize = STEPSIZE.WHOLE;
             if (e.ctrlKey) {
                 if (e.shiftKey) {
@@ -110,6 +119,9 @@ var cncjs = cncjs || new (function () {
                 _axis.Y.disengage();
                 _axis.Z.disengage();
             }
+            
+            keymap[e.keyCode] = 0;
+            
         });
 
 
