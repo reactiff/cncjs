@@ -79,9 +79,9 @@ var LinearStage = function (options) {
                 default:
                     break;
             }
-            _writePin(pins.ms1, stepsize[0]);
-            _writePin(pins.ms2, stepbits[1]);
-            _writePin(pins.ms3, stepbits[2]);
+            _writePin(_pins.ms1, stepsize[0]);
+            _writePin(_pins.ms2, stepsize[1]);
+            _writePin(_pins.ms3, stepsize[2]);
         }
 
         _send('pwm', 'pin', _pins.pwm.padStart(2, "0"), ondur, offdur, _easing);
@@ -111,9 +111,9 @@ var LinearStage = function (options) {
 
         self.engage = function (direction, stepsize) {
 
-            _writePin(pins.ms1, stepsize[0]);
-            _writePin(pins.ms2, stepbits[1]);
-            _writePin(pins.ms3, stepbits[2]);
+            _writePin(_pins.ms1, stepsize[0]);
+            _writePin(_pins.ms2, stepsize[1]);
+            _writePin(_pins.ms3, stepsize[2]);
 
             _send('pwm', 'pin', _pins.pwm.padStart(2, "0"), '001', '001', _easing);
         };
