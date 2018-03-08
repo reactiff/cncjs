@@ -14,11 +14,8 @@ var cncjs = cncjs || new (function () {
         FORWARD: 1,
         REVERSE: 0
     };
-
-    
-    var websock;  //we use web sockets for fast communication with the controller
         
-    var axis = {
+    var _axis = {
         X: new LinearStage({
             name: "X",
             resolution: 2800,
