@@ -1,6 +1,7 @@
 // Your code here!
 var LinearStage = function (options) {
 
+    
     var _websock;
     
     var _name = options.name;
