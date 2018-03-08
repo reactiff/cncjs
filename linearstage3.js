@@ -115,6 +115,8 @@ var LinearStage = function (options) {
             _writePin(_pins.ms2, stepsize[1]);
             _writePin(_pins.ms3, stepsize[2]);
 
+            _writePin(_pins.dir, direction);
+            
             _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
         };
 
