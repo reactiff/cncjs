@@ -127,7 +127,7 @@ var LinearStage = function (options) {
         };
 
         self.onstartpwmclick = _onstartpwmclick;
-        self._onstoppwmclick = _onstoppwmclick;
+        self.onstoppwmclick = _onstoppwmclick;
 
         return self;
     };
