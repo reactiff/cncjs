@@ -1,5 +1,5 @@
 // Your code here!
-var LinearStage = function (websocket, options) {
+var LinearStage = function (options) {
 
     var _websock;
     
