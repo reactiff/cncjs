@@ -26,7 +26,7 @@ var LinearStage = function (options) {
     };
 
     var _writePin = function (pin, data) {
-        _send('exe', 'pin', pin.padStart(2, '0'), data);
+        _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
     };
 
     var _onstartpwmclick = function (e) {
@@ -84,12 +84,12 @@ var LinearStage = function (options) {
             _writePin(_pins.ms3, stepsize[2]);
         }
 
-        _send('pwm', 'pin', _pins.pwm.padStart(2, "0"), ondur, offdur, _easing);
+        _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), ondur, offdur, _easing);
     };
 
     var _onstoppwmclick = function (e) {
         if (_easing!='') {
-            _send('pwm.pin', _pins.pwm.padStart(2, "0"), '000.000', _easing);
+            _send('pwm.pin', _pins.pwm.toString().padStart(2, "0"), '000.000', _easing);
         }
         else {
             _writePin(_pins.pwm, 0);
@@ -115,7 +115,7 @@ var LinearStage = function (options) {
             _writePin(_pins.ms2, stepsize[1]);
             _writePin(_pins.ms3, stepsize[2]);
 
-            _send('pwm', 'pin', _pins.pwm.padStart(2, "0"), '001', '001', _easing);
+            _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
         };
 
         self.disengage = function () {
