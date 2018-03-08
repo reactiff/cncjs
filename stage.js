@@ -1,6 +1,5 @@
 // Your code here!
 var LinearStage = function (options) {
-
     
     var _websock;
     
@@ -125,6 +124,9 @@ var LinearStage = function (options) {
 
         self.movesteps = function (steps) {
 
+        };
+        
+        self.setorigin = function() {
         };
 
         self.onstartpwmclick = _onstartpwmclick;
