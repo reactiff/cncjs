@@ -19,7 +19,6 @@ var cncjs = cncjs || new (function () {
         X: new LinearStage({
             name: "X",
             resolution: 2800,
-            controller: websock,
             pins: {
                 ms1: 0,
                 ms2: 1,
@@ -31,7 +30,6 @@ var cncjs = cncjs || new (function () {
         Y: new LinearStage({
             name: "Y axis",
             resolution: 5000,
-            websocket: websock,
             pins: {
                 ms1: 8,
                 ms2: 9,
@@ -43,7 +41,6 @@ var cncjs = cncjs || new (function () {
         Z: new LinearStage({
             name: "Z axis",
             resolution: 1000,
-            websocket: websock,
             pins: {
                 ms1: 24,
                 ms2: 25,
