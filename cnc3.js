@@ -54,7 +54,7 @@ var cncjs = cncjs || new (function () {
     var _init = function () {
         
         //bind keyboard shortcuts
-        $("document").keydown(function (e) {
+        $(document).keydown(function (e) {
             var stepsize = STEPSIZE.WHOLE;
             if (e.ctrlKey) {
                 if (e.shiftKey) {
@@ -90,7 +90,7 @@ var cncjs = cncjs || new (function () {
             }
         });
 
-        $("document").keyup(function (e) {
+        $(document).keyup(function (e) {
             if (e.keyCode == 37) { // left
                 _axis.X.disengage();
             }
