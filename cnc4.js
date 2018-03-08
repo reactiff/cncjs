@@ -66,6 +66,8 @@ var cncjs = cncjs || new (function () {
                 stepsize = STEPSIZE.QUARTER;
             }
 
+            console.log('keydown > key: ' + e.keyCode);
+            
             if (e.keyCode == 37) { // left
                 _axis.X.engage(DIRECTION.REVERSE, stepsize);
             }
@@ -91,6 +93,9 @@ var cncjs = cncjs || new (function () {
         });
 
         $(document).keyup(function (e) {
+            
+            console.log('keyup > key: ' + e.keyCode);
+            
             if (e.keyCode == 37) { // left
                 _axis.X.disengage();
             }
