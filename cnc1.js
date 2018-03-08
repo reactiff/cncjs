@@ -17,7 +17,7 @@ var cncjs = cncjs || new (function () {
         
     var _axis = {
         X: new LinearStage({
-            name: "X",
+            name: "X axis",
             resolution: 2800,
             pins: {
                 ms1: 0,
@@ -54,7 +54,7 @@ var cncjs = cncjs || new (function () {
     var _init = function () {
         
         //bind keyboard shortcuts
-        $("window").keydown(function (e) {
+        $("document").keydown(function (e) {
             var stepsize = STEPSIZE.WHOLE;
             if (e.ctrlKey) {
                 if (e.shiftKey) {
@@ -90,7 +90,7 @@ var cncjs = cncjs || new (function () {
             }
         });
 
-        $("window").keyup(function (e) {
+        $("document").keyup(function (e) {
             if (e.keyCode == 37) { // left
                 _axis.X.disengage();
             }
