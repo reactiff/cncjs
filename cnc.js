@@ -115,11 +115,11 @@ var cncjs = cncjs || new (function () {
             
         });
 
-        $($e('textarea #userscript')).appendTo('body');
+        $($e('textarea#userscript.code')).appendTo('body');
         
-        var btn = $e('button type="button" value="Run"');
-        btn.click(function(e){
-            var script = $('textarea').text();
+        var btn = $e('button type="button"', 'Execute');
+        $(btn).click(function(e){
+            var script = $('#userscript').text();
             eval(script);
         });
         
