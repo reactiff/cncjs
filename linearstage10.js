@@ -15,7 +15,8 @@ var LinearStage = function (options) {
 
     var _res = options.resolution;
     var _easing = '';
-    var _moving = false;
+    
+    var _executing = false;
     
     var _send = function (/* a comma separated argument list */) {
         var argarray = [].slice.apply(arguments).slice(0);
@@ -32,7 +33,7 @@ var LinearStage = function (options) {
 
     var _move = function(mm, res){
         
-        _moving = true;
+        _executing = true;
         
         var numsteps = parseInt(res * mm);
         
@@ -54,7 +55,7 @@ var LinearStage = function (options) {
         
         _send('mov.pin.' + _pins.pwm + '.001.001.' + numsteps);
         
-        _moving = false;
+        _executing = false;
     };
     
     var _onstartpwmclick = function (e) {
@@ -130,7 +131,7 @@ var LinearStage = function (options) {
 
     var _onstoppwmclick = function (e) {
         
-        if(_moving) return;
+        if(_executing) return;
         
         if (_easing!='') {
             _send('pwm.pin', _pins.pwm.toString().padStart(2, "0"), '000.000', _easing);
@@ -149,8 +150,10 @@ var LinearStage = function (options) {
         _websock.onclose = function (evt) { console.log(_name + ' websocker closed'); alert(_name + ' WebSock closed!'); };
         _websock.onerror = function (evt) { console.log(_name + ' websocket error:\n\t' + evt); alert(_name + ' WebSock error!\n\t' + evt.toString()); }; 
         _websock.onmessage = function (evt) {
-            console.log(_name + ' websocket message: ' + evt.data); var data = evt.data;
-            //to do: Handle messages from CNC controller
+            console.log('>>> ' + _name + ' websocket message: ' + evt.data); var data = evt.data;
+            if(evt.data=='ok'){
+                _executing = false;
+            }
         };
 
         self.engage = function (direction, stepsize) {
