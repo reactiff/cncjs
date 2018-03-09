@@ -15,7 +15,8 @@ var LinearStage = function (options) {
 
     var _res = options.resolution;
     var _easing = '';
-
+    var _moving = false;
+    
     var _send = function (/* a comma separated argument list */) {
         var argarray = [].slice.apply(arguments).slice(0);
         _websock.send(argarray.join('.'));
@@ -31,6 +32,8 @@ var LinearStage = function (options) {
 
     var _move = function(mm, res){
         
+        _moving = true;
+        
         var numsteps = parseInt(res * mm);
         
         var dir = 1;
@@ -39,14 +42,16 @@ var LinearStage = function (options) {
             dir = 0;
         }
 
-        websock.send('exe.pin.' + _pins.pwm + '.0');  //disengage
-        websock.send('exe.pin.' + _pins.dir + '.' + dir);  //dir
+        _send('exe.pin.' + _pins.pwm + '.0');  //disengage
+        _send('exe.pin.' + _pins.dir + '.' + dir);  //dir
         
         //numsteps.forEach(function(i){
         for(var i=0; i<numsteps; i++){  
             console.log(_name + ': move > step ' + i + ' of ' + numsteps);
-            websock.send('mov.pin.' + _pins.pwm + '.001.001.1');
+            _send('mov.pin.' + _pins.pwm + '.001.001.1');
         }
+        
+        _moving = false;
     };
     
     var _onstartpwmclick = function (e) {
@@ -121,6 +126,9 @@ var LinearStage = function (options) {
     };
 
     var _onstoppwmclick = function (e) {
+        
+        if(_moving) return;
+        
         if (_easing!='') {
             _send('pwm.pin', _pins.pwm.toString().padStart(2, "0"), '000.000', _easing);
         }
