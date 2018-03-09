@@ -26,7 +26,8 @@ function getversion(){
             document.head.appendChild(script); 
           });
         }
-      };
+      }
+    };
     
     ws.send('mem.get.000.007');
       
