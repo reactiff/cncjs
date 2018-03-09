@@ -2,7 +2,8 @@ var _versionws;
 (function(){
   _versionws = new WebSocket('ws://' + window.location.hostname + ':81/');
   _versionws.onmessage = function (evt) {
-    if(evt.data.indexOf('memdata:')!=0){
+    console.log(evt.data);
+    if(evt.data.indexOf('memdata:')>=0){
       var kv = evt.data.split(':')[1];
       var t = kv.split('=');
       var addr = t[0];
