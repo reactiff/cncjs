@@ -2,6 +2,30 @@
 
 var cncjs = cncjs || new (function () {
 
+    var m3dqueue = new Array();
+    var m3dexecuting = false;
+    
+    var _m3dws = new WebSocket('ws://' + window.location.hostname + ':81/');
+    
+    var _nextM3dCommand = function(){
+        if(m3dqueue.length<1){
+            m3dexecuting = false;
+            return;
+        }
+        var cmd = m3dqueue.shift();
+        _m3dws.send(cmd);
+    };
+        
+    _m3dws.onopen = function (evt) { console.log('M3D websocket opened'); };
+    _m3dws.onclose = function (evt) { console.log('M3D websocket closed'); alert('M3D WebSock closed!'); };
+    _m3dws.onerror = function (evt) { console.log('M3D websocket error:\n\t' + evt); alert('M3D WebSock error!\n\t' + evt.toString()); }; 
+    _m3dws.onmessage = function (evt) {
+        if(evt.data=='ok'){
+            _nextM3dCommand();
+        }
+    };
+    
+    
     var STEPSIZE = {
         WHOLE: '000',
         HALF: '100',
@@ -126,7 +150,23 @@ var cncjs = cncjs || new (function () {
         $('body').append(btn);
         
     };
-
+    
+    var _move3d = function(dx, dy, dz){
+        
+        var msg = 'm3d.' +
+                  _axis.X.getvector(dx) + '.' +
+                  _axis.Y.getvector(dy) + '.' +
+                  _axis.Z.getvector(dz);
+        
+        m3dqueue.push(msg);
+                
+        if(!m3dexecuting){
+            m3dexecuting = true;
+            _nextM3dCommand();
+        }
+        
+    };
+    
     
 
 
