@@ -115,7 +115,7 @@ var cncjs = cncjs || new (function () {
             
         });
 
-
+        $($e('textarea#userscript')).appendTo('body');
     };
 
     
