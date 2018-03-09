@@ -175,6 +175,8 @@ var cncjs = cncjs || new (function () {
         var _this = this; //save the instance reference because 'this' will always change
 
         _this.axis = _axis;
+        
+        _this.move3d = _move3d;
 
         _init();
 
