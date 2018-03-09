@@ -64,16 +64,7 @@ var cncjs = cncjs || new (function () {
             
             keymap[e.keyCode] = 1;
             
-            var stepsize = STEPSIZE.WHOLE;
-            if (e.ctrlKey) {
-                if (e.shiftKey) {
-                    stepsize = STEPSIZE.SIXTEENTH;
-                } else {
-                    stepsize = STEPSIZE.QUARTER;
-                }
-            } else if (e.shiftKey) {
-                stepsize = STEPSIZE.QUARTER;
-            }
+            var stepsize = e.ctrlKey ? STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
 
             console.log('keydown > key: ' + e.keyCode);
             
@@ -81,7 +72,7 @@ var cncjs = cncjs || new (function () {
                 _axis.X.engage(DIRECTION.REVERSE, stepsize);
             }
             else if (e.keyCode == 38) { // up/away
-                if (e.altKey) {
+                if (e.shiftKey) {
                     _axis.Z.engage(DIRECTION.REVERSE, stepsize);
                 }
                 else {
@@ -92,7 +83,7 @@ var cncjs = cncjs || new (function () {
                 _axis.X.engage(DIRECTION.FORWARD, stepsize);
             }
             else if (e.keyCode == 40) { // down/towards
-                if (e.altKey) {
+                if (e.shiftKey) {
                     _axis.Z.engage(DIRECTION.FORWARD, stepsize);
                 }
                 else {
