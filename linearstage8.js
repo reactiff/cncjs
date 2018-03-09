@@ -51,11 +51,8 @@ var LinearStage = function (options) {
         _writePin(_pins.ms2, stepsize[1]);
         _writePin(_pins.ms3, stepsize[2]);
         
-        //numsteps.forEach(function(i){
-        for(var i=0; i<numsteps; i++){  
-            console.log(_name + ': move > step ' + i + ' of ' + numsteps);
-            _send('mov.pin.' + _pins.pwm + '.001.001.1');
-        }
+        
+        _send('mov.pin.' + _pins.pwm + '.001.001.' + numsteps);
         
         _moving = false;
     };
