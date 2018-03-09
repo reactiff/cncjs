@@ -45,6 +45,12 @@ var LinearStage = function (options) {
         _send('exe.pin.' + _pins.pwm + '.0');  //disengage
         _send('exe.pin.' + _pins.dir + '.' + dir);  //dir
         
+        var stepsize = '111';
+        
+        _writePin(_pins.ms1, stepsize[0]);
+        _writePin(_pins.ms2, stepsize[1]);
+        _writePin(_pins.ms3, stepsize[2]);
+        
         //numsteps.forEach(function(i){
         for(var i=0; i<numsteps; i++){  
             console.log(_name + ': move > step ' + i + ' of ' + numsteps);
