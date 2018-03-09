@@ -119,7 +119,7 @@ var cncjs = cncjs || new (function () {
         
         var btn = $e('button type="button"', 'Execute');
         $(btn).click(function(e){
-            var script = $('#userscript').text();
+            var script = $('#userscript').value || $('#userscript').val();
             eval(script);
         });
         
