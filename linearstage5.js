@@ -177,12 +177,6 @@ Number.prototype.forEach = function (callback) {
         callback(i);
     }
 };
- // an array n elements
-            var arr = new Array(arguments[0]);
-            for(var i=0; i<arguments[0]; i++){
-                arr[i] = i;
-            }
-            return arr;
-   
+
     
  
