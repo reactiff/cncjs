@@ -2,30 +2,6 @@
 
 var cncjs = cncjs || new (function () {
 
-    var m3dqueue = new Array();
-    var m3dexecuting = false;
-    
-    var _m3dws = new WebSocket('ws://' + window.location.hostname + ':81/');
-    
-    var _nextM3dCommand = function(){
-        if(m3dqueue.length<1){
-            m3dexecuting = false;
-            return;
-        }
-        var cmd = m3dqueue.shift();
-        _m3dws.send(cmd);
-    };
-        
-    _m3dws.onopen = function (evt) { console.log('M3D websocket opened'); };
-    _m3dws.onclose = function (evt) { console.log('M3D websocket closed'); alert('M3D WebSock closed!'); };
-    _m3dws.onerror = function (evt) { console.log('M3D websocket error:\n\t' + evt); alert('M3D WebSock error!\n\t' + evt.toString()); }; 
-    _m3dws.onmessage = function (evt) {
-        if(evt.data=='m3d.ok'){
-            _nextM3dCommand();
-        }
-    };
-    
-    
     var STEPSIZE = {
         WHOLE: '000',
         HALF: '100',
@@ -38,6 +14,41 @@ var cncjs = cncjs || new (function () {
         FORWARD: 1,
         REVERSE: 0
     };
+    
+    var m3dqueue = new Array();
+    var m3dexecuting = false;
+    
+    var _m3dws = new WebSocket('ws://' + window.location.hostname + ':81/');
+    
+    var _nextM3dCommand = function(){
+        if(m3dqueue.length<1){
+            m3dexecuting = false;
+            return;
+        }
+        
+        var cmd = m3dqueue.shift();
+        console.log('--> send ' + cmd); 
+        
+        
+        _axis.X.setstepsize(STEPSIZE.SIXTEENTH);
+        _axis.Y.setstepsize(STEPSIZE.SIXTEENTH);
+        _axis.Z.setstepsize(STEPSIZE.SIXTEENTH);
+        
+        _m3dws.send(cmd);
+    };
+        
+    _m3dws.onopen = function (evt) { console.log('M3D websocket opened'); };
+    _m3dws.onclose = function (evt) { console.log('M3D websocket closed'); alert('M3D WebSock closed!'); };
+    _m3dws.onerror = function (evt) { console.log('M3D websocket error:\n\t' + evt); alert('M3D WebSock error!\n\t' + evt.toString()); }; 
+    _m3dws.onmessage = function (evt) {
+        if(evt.data=='m3d.ok'){
+            console.log('m3d command completed.  Sending next:); 
+            _nextM3dCommand();
+        }
+    };
+    
+    
+    
         
     var _axis = {
         X: new LinearStage({
