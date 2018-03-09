@@ -18,7 +18,7 @@ var cncjs = cncjs || new (function () {
     var _axis = {
         X: new LinearStage({
             name: "X axis",
-            resolution: 2800,
+            resolution: 2770,
             pins: {
                 ms1: 0,
                 ms2: 1,
@@ -40,7 +40,7 @@ var cncjs = cncjs || new (function () {
         }),
         Z: new LinearStage({
             name: "Z axis",
-            resolution: 1000,
+            resolution: 4000,
             pins: {
                 ms1: 24,
                 ms2: 25,
@@ -69,25 +69,25 @@ var cncjs = cncjs || new (function () {
             console.log('keydown > key: ' + e.keyCode);
             
             if (e.keyCode == 37) { // left
-                _axis.X.engage(DIRECTION.REVERSE, stepsize);
+                _axis.X.engage(DIRECTION.FORWARD, stepsize);
             }
             else if (e.keyCode == 38) { // up/away
                 if (e.shiftKey) {
                     _axis.Z.engage(DIRECTION.REVERSE, stepsize);
                 }
                 else {
-                    _axis.Y.engage(DIRECTION.FORWARD, stepsize);
+                    _axis.Y.engage(DIRECTION.REVERSE, stepsize);
                 }
             }
             else if (e.keyCode == 39) { // right
-                _axis.X.engage(DIRECTION.FORWARD, stepsize);
+                _axis.X.engage(DIRECTION.REVERSE, stepsize);
             }
             else if (e.keyCode == 40) { // down/towards
                 if (e.shiftKey) {
                     _axis.Z.engage(DIRECTION.FORWARD, stepsize);
                 }
                 else {
-                    _axis.Y.engage(DIRECTION.REVERSE, stepsize);
+                    _axis.Y.engage(DIRECTION.FORWARD, stepsize);
                 }
             }
         });
