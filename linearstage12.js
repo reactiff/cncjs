@@ -43,8 +43,8 @@ var LinearStage = function (options) {
             dir = 0;
         }
 
-        _send('exe.pin.' + _pins.pwm + '.0');  //disengage
-        _send('exe.pin.' + _pins.dir + '.' + dir);  //dir
+        _send('exe.pin.' + _pins.pwm.toString().padStart(2, '0') + '.0');  //disengage
+        _send('exe.pin.' + _pins.dir.toString().padStart(2, '0') + '.' + dir);  //dir
         
         var stepsize = '111';
         
@@ -53,7 +53,7 @@ var LinearStage = function (options) {
         _writePin(_pins.ms3, stepsize[2]);
         
         
-        _send('mov.pin.' + _pins.pwm + '.001.001.' + numsteps);
+        _send('mov.pin.' + _pins.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
         
 
     };
