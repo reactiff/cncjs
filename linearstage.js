@@ -144,10 +144,12 @@ var LinearStage = function (options) {
 
     var _getvector = function(mm){
         var dir = mm<0 ? 0 : 1;
+        var steps = parseInt(parseFloat(_res) * Math.abs(mm));
+        
         return _pins.pwm.toString().padStart(2, "0") +
                _pins.dir.toString().padStart(2, "0") +
                dir.toString() +
-               (parseFloat(_res) * mm).toString().padStart(7, "0");
+               steps.toString().padStart(7, "0");
                
             
     };
