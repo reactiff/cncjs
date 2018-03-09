@@ -14,6 +14,7 @@ var LinearStage = function (options) {
         pwm: options.pins.pwm
     };
 
+    var _stepsize = '111';
     var _res = options.resolution;
     var _easing = '';
     
@@ -32,6 +33,12 @@ var LinearStage = function (options) {
         _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
     };
 
+    var _setstepsize = function(stepsize){
+        _stepsize = stepsize;
+        _writePin(_pins.ms1, stepsize[0]);
+        _writePin(_pins.ms2, stepsize[1]);
+        _writePin(_pins.ms3, stepsize[2]);  
+    };
     var _move = function(mm, res){
         
         _executing = true;
@@ -189,7 +196,7 @@ var LinearStage = function (options) {
 
         self.move = _move;
         self.getvector = _getvector;
-        
+        self.setstepsize = _setstepsize;
         self.setorigin = function() {
         };
 
