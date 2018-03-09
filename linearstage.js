@@ -183,6 +183,7 @@ var LinearStage = function (options) {
         }
 
         self.move = _move;
+        self.getvector = _getvector;
         
         self.setorigin = function() {
         };
