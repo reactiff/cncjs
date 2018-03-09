@@ -146,9 +146,9 @@ var LinearStage = function (options) {
         var dir = mm<0 ? 0 : 1;
         var steps = parseInt(parseFloat(_res) * Math.abs(mm));
         
-        var cmd = _pins.pwm.toString().padStart(2, "0") +
-               _pins.dir.toString().padStart(2, "0") +
-               dir.toString() +
+        var cmd = _pins.pwm.toString().padStart(2, "0") + '.'
+               _pins.dir.toString().padStart(2, "0") + '.'
+               dir.toString() + '.'
                steps.toString().padStart(7, "0");
         
         console.log(cmd);
