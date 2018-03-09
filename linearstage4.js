@@ -29,10 +29,43 @@ var LinearStage = function (options) {
         _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
     };
 
+    var _move = function(mm, res){
+        
+        var numsteps = parseInt(res * mm);
+        
+        var dir = 1;
+        if (numsteps < 0) {
+            numsteps = Math.abs(numsteps);
+            dir = 0;
+        }
+
+        websock.send('exe.pin.' + _pins.pwm + '.0');  //disengage
+        websock.send('exe.pin.' + _pins.dir + '.' + dir);  //dir
+        
+        //numsteps.forEach(function(i){
+        for(var i=0; i<numsteps; i++){  
+            console.log(_name + ': move > step ' + i + ' of ' + numsteps);
+            websock.send('mov.pin.' + _pins.pwm + '.001.001.1');
+        }
+    };
+    
     var _onstartpwmclick = function (e) {
 
         var ondur = $(e).attr('ondurinput') ? $('#' + $(e).attr('ondurinput')).val().padStart(3, "0") : $(e).attr('ondur').padStart(3, "0") || ''; 
         var offdur = $(e).attr('offdurinput') ? $('#' + $(e).attr('offdurinput')).val().padStart(3, "0") : $(e).attr('offdur').padStart(3, "0") || '';
+        
+        var dist = $(e).attr('distinput') ? $('#' + $(e).attr('distinput')).val() : $(e).attr('distinput') || '';
+        if(dist!=''){
+            //move the distance using specified number of microsteps per mm
+            var res = $(e).attr('resinput') ? $('#' + $(e).attr('resinput')).val() : $(e).attr('resinput') || '';    
+            if(res==''){
+                res = _res;
+            }
+            
+            _move(dist, res);
+            
+            return;
+        }
 
         if (ondur == '') ondur = '001';
         if (offdur == '') offdur = '001';
@@ -42,7 +75,7 @@ var LinearStage = function (options) {
         var dir = $(e).attr('dir');
 
         _writePin(_pins.dir, dir);
-
+            
         //See if the element has any attributes pertaining to step size
         //1 represents FULL step.  Divisor acts as a denominator in the fraction, so 1/1, 1/2, 1/4 and so on...
         var stepdivisor =
@@ -124,9 +157,7 @@ var LinearStage = function (options) {
             _writePin(_pins.pwm, 0);
         }
 
-        self.movesteps = function (steps) {
-
-        };
+        self.move = _move;
         
         self.setorigin = function() {
         };
@@ -137,3 +168,21 @@ var LinearStage = function (options) {
         return self;
     };
 };
+
+    
+//Helpers
+Number.prototype.forEach = function (callback) {
+    if (this === 0) return false;
+    for (var i = 0; i < this; i++) {
+        callback(i);
+    }
+};
+ // an array n elements
+            var arr = new Array(arguments[0]);
+            for(var i=0; i<arguments[0]; i++){
+                arr[i] = i;
+            }
+            return arr;
+   
+    
+ 
