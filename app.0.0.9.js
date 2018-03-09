@@ -19,7 +19,7 @@ function getversion(){
           var gittag = t[1];
           $('#gittaginput').val(gittag);
           //git version
-          var files = ['linearstage.js', 'rotarystage.js', 'cnc.js']; //main file last
+          var files = ['etag.js', 'linearstage.js', 'rotarystage.js', 'cnc.js']; //main file last
           files.forEach(function(filename){
             var script = document.createElement('script');
             script.src = 'https://cdn.rawgit.com/nycdude777/cncjs/' + gittag + '/' + filename;
