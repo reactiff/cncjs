@@ -19,7 +19,9 @@ var _versionws;
       }
     }
   };
-  _versionws.send('mem.get.000.007');
+  _versionws.onopen = function (evt) { 
+    _versionws.send('mem.get.000.007');
+  };
 })();
 
 function setGittag() { 
