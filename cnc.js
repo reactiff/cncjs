@@ -20,7 +20,7 @@ var cncjs = cncjs || new (function () {
     _m3dws.onclose = function (evt) { console.log('M3D websocket closed'); alert('M3D WebSock closed!'); };
     _m3dws.onerror = function (evt) { console.log('M3D websocket error:\n\t' + evt); alert('M3D WebSock error!\n\t' + evt.toString()); }; 
     _m3dws.onmessage = function (evt) {
-        if(evt.data=='ok'){
+        if(evt.data=='m3d.ok'){
             _nextM3dCommand();
         }
     };
