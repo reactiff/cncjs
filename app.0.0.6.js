@@ -33,7 +33,7 @@ function getversion(){
   });
 }
 
-function setGittag() { 
+function setversion() { 
   var value = $('#gittaginput').val(); 
   _wsconnect().then(function(ws){
     ws.send('mem.set.000.007.'+value); 
