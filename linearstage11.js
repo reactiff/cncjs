@@ -55,7 +55,7 @@ var LinearStage = function (options) {
         
         _send('mov.pin.' + _pins.pwm + '.001.001.' + numsteps);
         
-        _executing = false;
+
     };
     
     var _onstartpwmclick = function (e) {
