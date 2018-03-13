@@ -28,7 +28,7 @@ var _codeversionmessageparser = function(evt){
 var _codeversionconnectionhandler = function(){
     _cncsocket.removeEventListener('open', _codeversionconnectionhandler);
     _cncsocket.addEventListener('message', _codeversionmessageparser);
-    ws.send('mem.get.000.007');
+    _cncsocket.send('mem.get.000.007');
 };
 
 function getversion(){
