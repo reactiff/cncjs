@@ -16,9 +16,7 @@ var cnc = cnc || new (function () {
 
     var m3dqueue = new Array();
     var m3dexecuting = false;
-
-    var _websock;
-
+    
     var _nextM3dCommand = function () {
         if (m3dqueue.length < 1) {
             m3dexecuting = false;
@@ -29,8 +27,8 @@ var cnc = cnc || new (function () {
         _axis.X.setstepsize(STEPSIZE.SIXTEENTH);
         _axis.Y.setstepsize(STEPSIZE.SIXTEENTH);
         _axis.Z.setstepsize(STEPSIZE.SIXTEENTH);
-        cnc.connect().then(function(ws){
-            ws.send(cmd);
+        cnc.connect().then(function(socket){
+            socket.send(cmd);
         });
     };
 
@@ -200,7 +198,7 @@ var cnc = cnc || new (function () {
 
         _this.axis = _axis;
         _this.move3d = _move3d;
-        _this.getsocket = _getsocket;
+        _this.connect = _promiseSocket;
 
         _init();
 
