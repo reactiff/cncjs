@@ -21,7 +21,7 @@ var LinearStage = function (options) {
         cnc.connect().then(function(ws){
             ws.send(argarray.join('.'));    
         });
-    }
+    };
 
     var _writePin = function (pin, data) {
         _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
@@ -39,10 +39,10 @@ var LinearStage = function (options) {
         var numsteps = parseInt(res * mm);
         var dir = 1;
         if (numsteps < 0) { numsteps = Math.abs(numsteps); dir = 0; }
-        _send('exe.pin.' + _p.pwm.toString().padStart(2, '0') + '.0');  //disengage
-        _send('exe.pin.' + _p.dir.toString().padStart(2, '0') + '.' + dir);  //dir
+        _send('exe.pin.' + _pins.pwm.toString().padStart(2, '0') + '.0');  //disengage
+        _send('exe.pin.' + _pins.dir.toString().padStart(2, '0') + '.' + dir);  //dir
         _setstepsize('111');
-        _send('mov.pin.' + _p.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
+        _send('mov.pin.' + _pins.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
     };
     
     var _onstartpwmclick = function (e) {
@@ -51,10 +51,10 @@ var LinearStage = function (options) {
         var offdur = $(e).attr('offdurinput') ? $('#' + $(e).attr('offdurinput')).val().padStart(3, "0") : $(e).attr('offdur').padStart(3, "0") || '';
         
         var dist = $(e).attr('distinput') ? $('#' + $(e).attr('distinput')).val() : $(e).attr('distinput') || '';
-        if(dist!=''){
+        if(dist!==''){
             //move the distance using specified number of microsteps per mm
             var res = $(e).attr('resinput') ? $('#' + $(e).attr('resinput')).val() : $(e).attr('resinput') || '';    
-            if(res==''){
+            if(res===''){
                 res = _res;
             }
             
@@ -63,8 +63,8 @@ var LinearStage = function (options) {
             return;
         }
 
-        if (ondur == '') ondur = '001';
-        if (offdur == '') offdur = '001';
+        if (ondur === '') ondur = '001';
+        if (offdur === '') offdur = '001';
 
         _writePin(_pins.pwm, 0);  //disengage anything currently running on the pin
 
@@ -74,17 +74,11 @@ var LinearStage = function (options) {
             
         //See if the element has any attributes pertaining to step size
         //1 represents FULL step.  Divisor acts as a denominator in the fraction, so 1/1, 1/2, 1/4 and so on...
-        var stepdivisor =
-            $(e).attr('stepdivisor')            // if stepdivisor attribute is present...
-                ?
-                $(e).attr('stepdivisor')            // then grab its value
-                :                                     // else...
-                $(e).attr('stepdivisorinput')   // if radio group name is specified
-                    ?
-                    // then grab the value of the selected radio button
-                    $("input:radio[name='" + $(e).attr('stepdivisorinput') + "']:checked").val()
-
-                    : null;                           // otherwise return null so we know there was nothing specified
+        var stepdivisor = $(e).attr('stepdivisor') ?
+            							$(e).attr('stepdivisor') :
+                   					$(e).attr('stepdivisorinput') ?
+        								    $("input:radio[name='" + $(e).attr('stepdivisorinput') + "']:checked").val() : 
+        										null;
 
          //set step size
         if (stepdivisor) {
@@ -99,7 +93,7 @@ var LinearStage = function (options) {
         
         if(_executing) return;
         
-        if (_easing!='') {
+        if (_easing!=='') {
             _send('pwm.pin', _pins.pwm.toString().padStart(2, "0"), '000.000', _easing);
         }
         else {
@@ -133,7 +127,7 @@ var LinearStage = function (options) {
 
         self.disengage = function () {
             _writePin(_pins.pwm, 0);
-        }
+        };
 
         self.move = _move;
         self.getvector = _getvector;
@@ -146,5 +140,3 @@ var LinearStage = function (options) {
         return self;
     };
 };
-
- 
