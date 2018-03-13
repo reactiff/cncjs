@@ -1,6 +1,6 @@
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 
-var cncjs = cncjs || new (function () {
+var cnc = cnc || new (function () {
 
     var STEPSIZE = {
         WHOLE: '000',
@@ -31,7 +31,9 @@ var cncjs = cncjs || new (function () {
         _axis.X.setstepsize(STEPSIZE.SIXTEENTH);
         _axis.Y.setstepsize(STEPSIZE.SIXTEENTH);
         _axis.Z.setstepsize(STEPSIZE.SIXTEENTH);
-        _websock.send(cmd);
+        cnc.connect().then(function(ws){
+            ws.send(cmd);
+        });
     };
 
     var _axis = {
