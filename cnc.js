@@ -1,5 +1,4 @@
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
-
 var cnc = cnc || new (function () {
 
     var STEPSIZE = {
@@ -163,41 +162,37 @@ var cnc = cnc || new (function () {
 
     };
 
-    var _connect = function () {
-        return new Promise((resolve, reject) => {
-            if (_websock && _websock.readyState===1) {
-                resolve(_websock);
-            } else {
-                if (!_websock) {
-                    _websock = new WebSocket('ws://' + window.location.hostname + ':81/');
-                    _websock.onopen = function (e) {
-                        resolve(_websock);
-                    };
-                    _websock.onmessage = function (evt, flags, number) {
-                        _axis.X.message(evt, flags, number);
-                        _axis.Y.message(evt, flags, number);
-                        _axis.Z.message(evt, flags, number);
-                        if (evt.data == 'm3d.ok') {
-                            console.log('####### 3d command completed.  Sending next command ######');
-                            _nextM3dCommand();
-                        }
-                    };
-                    _websock.onclose = function (e) {
-                        console.log('Websocket closed');
-                    };
+    var _socketMessageHandler = function(evt, flags, number) {
+        if (evt.data == 'm3d.ok') {
+            console.log('####### 3d command completed.  Sending next command ######');
+            _nextM3dCommand();
+        }
+    };
+    
+    var _fulfillSocketPromise = function(resolve){
+        if(_cncsocket.readyState===1){
+            resolve(_cncsocket);
+        }
 
-                    _websock.onerror = function (e) {
-                        console.err(arguments);
-                    };
-                }
-                else {
-                    _websock.open('ws://' + window.location.hostname + ':81/');
-                }
-            }
+        if(_cncsocket.readyState===2) { //closing
+            _cncsocket.close();
+        }
+            
+        if(_cncsocket.readyState===3) { //closed
+            //create a new socket
+            _cncsocket = _createWebSocket();
+            _registerSocketMessageHandler(_socketMessageHandler);
+        }
+        
+        //if we got here, the socket is opening
+        setTimeout(_fulfillSocketPromise, 50, resolve);
+    };
+    
+    var _promiseSocket = function () {
+        return new Promise((resolve, reject) => {
+            _fulfillSocketPromise(resolve);
         });
     }
-
-
 
     return new function () {
 
@@ -205,10 +200,12 @@ var cnc = cnc || new (function () {
 
         _this.axis = _axis;
         _this.move3d = _move3d;
-        _this.connect = _connect;
+        _this.getsocket = _getsocket;
 
         _init();
 
+        _registerSocketMessageHandler(_socketMessageHandler);
+        
         return _this;
 
     };
