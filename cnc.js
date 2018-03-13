@@ -19,7 +19,6 @@ var cnc = cnc || new (function () {
     var m3dexecuting = false;
 
     var _websock;
-    var _websockconnected = false;;
 
     var _nextM3dCommand = function () {
         if (m3dqueue.length < 1) {
@@ -166,41 +165,34 @@ var cnc = cnc || new (function () {
 
     var _connect = function () {
         return new Promise((resolve, reject) => {
-            if (_websockconnected) {
+            if (_websock.readyState===1) {
                 resolve(_websock);
             } else {
                 if (!_websock) {
                     _websock = new WebSocket('ws://' + window.location.hostname + ':81/');
+                    _websock.onopen = function (e) {
+                        resolve(_websock);
+                    };
+                    _websock.onmessage = function (evt, flags, number) {
+                        _axis.X.message(evt, flags, number);
+                        _axis.Y.message(evt, flags, number);
+                        _axis.Z.message(evt, flags, number);
+                        if (evt.data == 'm3d.ok') {
+                            console.log('####### 3d command completed.  Sending next command ######');
+                            _nextM3dCommand();
+                        }
+                    };
+                    _websock.onclose = function (e) {
+                        console.log('Websocket closed');
+                    };
+
+                    _websock.onerror = function (e) {
+                        console.err(arguments);
+                    };
                 }
                 else {
-                    _websock.removeAllListeners();
                     _websock.open('ws://' + window.location.hostname + ':81/');
                 }
-
-                _websock.onopen = function (e) {
-                    _websockconnected = true;
-                    resolve(_websock);
-                };
-
-                _websock.onmessage = function (evt, flags, number) {
-                    _axis.X.message(evt, flags, number);
-                    _axis.Y.message(evt, flags, number);
-                    _axis.Z.message(evt, flags, number);
-                    if (evt.data == 'm3d.ok') {
-                        console.log('####### 3d command completed.  Sending next command ######');
-                        _nextM3dCommand();
-                    }
-                };
-
-                _websock.onclose = function (e) {
-                    _websockconnected = false;
-                    console.log('Websocket closed');
-                };
-
-                _websock.onerror = function (e) {
-                    _websockconnected = false;
-                    console.err(arguments);
-                };
             }
         });
     }
