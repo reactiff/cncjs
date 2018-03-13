@@ -14,43 +14,26 @@ var cncjs = cncjs || new (function () {
         FORWARD: 1,
         REVERSE: 0
     };
-    
+
     var m3dqueue = new Array();
     var m3dexecuting = false;
-    
+
     var _websock;
     var _websockconnected = false;;
-    
-    var _nextM3dCommand = function(){
-        if(m3dqueue.length<1){
+
+    var _nextM3dCommand = function () {
+        if (m3dqueue.length < 1) {
             m3dexecuting = false;
             return;
         }
-        
         var cmd = m3dqueue.shift();
-        console.log('--> send ' + cmd); 
-        
-        
+        console.log('--> send ' + cmd);
         _axis.X.setstepsize(STEPSIZE.SIXTEENTH);
         _axis.Y.setstepsize(STEPSIZE.SIXTEENTH);
         _axis.Z.setstepsize(STEPSIZE.SIXTEENTH);
-        
-        _m3dws.send(cmd);
+        _websock.send(cmd);
     };
-        
-    _m3dws.onopen = function (evt) { console.log('M3D websocket opened'); };
-    _m3dws.onclose = function (evt) { console.log('M3D websocket closed'); alert('M3D WebSock closed!'); };
-    _m3dws.onerror = function (evt) { console.log('M3D websocket error:\n\t' + evt); alert('M3D WebSock error!\n\t' + evt.toString()); }; 
-    _m3dws.onmessage = function (evt) {
-        if(evt.data=='m3d.ok'){
-            console.log('m3d command completed.  Sending next command'); 
-            _nextM3dCommand();
-        }
-    };
-    
-    
-    
-        
+
     var _axis = {
         X: new LinearStage({
             name: "X axis",
@@ -86,28 +69,26 @@ var cncjs = cncjs || new (function () {
             }
         })
     };
-    
+
     var keymap = {};
-    
+
     var _init = function () {
-        
+
         //bind keyboard shortcuts
         $(document).keydown(function (e) {
-            
-            if(!e.ctrlKey){ //only respond to keyboard CNC control shortcuts when CTRL key is held down
-                return;
-            }
-            
-            if(keymap[e.keyCode]){
-                return;
-            }
-            
-            keymap[e.keyCode] = 1;
-            
-            var stepsize = e.ctrlKey ? STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
 
-            console.log('keydown > key: ' + e.keyCode);
-            
+            if (!e.ctrlKey) { //only respond to keyboard CNC control shortcuts when CTRL key is held down
+                return;
+            }
+
+            if (keymap[e.keyCode]) {
+                return;
+            }
+
+            keymap[e.keyCode] = 1;
+
+            var stepsize = e.altKey ? STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
+
             if (e.keyCode == 37) { // left
                 _axis.X.engage(DIRECTION.FORWARD, stepsize);
             }
@@ -133,9 +114,7 @@ var cncjs = cncjs || new (function () {
         });
 
         $(document).keyup(function (e) {
-            
-            console.log('keyup > key: ' + e.keyCode);
-            
+
             if (e.keyCode == 37) { // left
                 _axis.X.disengage();
             }
@@ -150,77 +129,81 @@ var cncjs = cncjs || new (function () {
                 _axis.Y.disengage();
                 _axis.Z.disengage();
             }
-            
+
             keymap[e.keyCode] = 0;
-            
+
         });
 
         $($e('textarea#userscript.code')).appendTo('body');
-        
+
         var btn = $e('button type="button"', 'Execute');
-        $(btn).click(function(e){
+        $(btn).click(function (e) {
             var script = $('#userscript').value || $('#userscript').val();
             eval(script);
         });
-        
+
         $('body').append(btn);
-        
+
     };
-    
-    var _move3d = function(dx, dy, dz){
-        
+
+    var _move3d = function (dx, dy, dz) {
+
         var msg = 'm3d.' +
-                  _axis.X.getvector(dx) + '.' +
-                  _axis.Y.getvector(dy) + '.' +
-                  _axis.Z.getvector(dz);
-        
+            _axis.X.getvector(dx) + '.' +
+            _axis.Y.getvector(dy) + '.' +
+            _axis.Z.getvector(dz);
+
         m3dqueue.push(msg);
-                
-        if(!m3dexecuting){
+
+        if (!m3dexecuting) {
             m3dexecuting = true;
             _nextM3dCommand();
         }
-        
+
     };
-    
-    var _connect = function() {
-      return new Promise((resolve, reject) => {
-        if(_websockconnected){
-            resolve(_websock);
-        }else{
-            if(!_websock){
-                _websock = new WebSocket('ws://' + window.location.hostname + ':81/');    
-            }
-            else {
-                _websock.removeAllListeners();
-                _websock.open('ws://' + window.location.hostname + ':81/');    
-            }
-            
-            _websock.onopen = function(e){ 
-                _websockconnected = true;
+
+    var _connect = function () {
+        return new Promise((resolve, reject) => {
+            if (_websockconnected) {
                 resolve(_websock);
-             };
-            
-            _websock.onmessage = function(data,flags,number){
-                _axis.X.socketmessage(data, flags, number);
-                _axis.Y.socketmessage(data, flags, number);
-                _axis.Z.socketmessage(data, flags, number);
-            };
-            
-            _websock.onclose = function(e){ 
-                _websockconnected = false;
-                console.log('Websocket closed');
-             };
-            
-            _websock.onerror = function(e){ 
-                _websockconnected = false;
-                console.err(arguments);
-             };
-        }
-      });
+            } else {
+                if (!_websock) {
+                    _websock = new WebSocket('ws://' + window.location.hostname + ':81/');
+                }
+                else {
+                    _websock.removeAllListeners();
+                    _websock.open('ws://' + window.location.hostname + ':81/');
+                }
+
+                _websock.onopen = function (e) {
+                    _websockconnected = true;
+                    resolve(_websock);
+                };
+
+                _websock.onmessage = function (evt, flags, number) {
+                    _axis.X.message(evt, flags, number);
+                    _axis.Y.message(evt, flags, number);
+                    _axis.Z.message(evt, flags, number);
+                    if (evt.data == 'm3d.ok') {
+                        console.log('####### 3d command completed.  Sending next command ######');
+                        _nextM3dCommand();
+                    }
+                };
+
+                _websock.onclose = function (e) {
+                    _websockconnected = false;
+                    console.log('Websocket closed');
+                };
+
+                _websock.onerror = function (e) {
+                    _websockconnected = false;
+                    console.err(arguments);
+                };
+            }
+        });
     }
 
-   
+
 
     return new function () {
 
