@@ -26,21 +26,25 @@ var _codeversionmessageparser = function(evt){
 };
 
 var _codeversionconnectionhandler = function(){
-  _cncsocket.removeEventListener('open', _codeversionconnectionhandler);
-  _cncsocket.addEventListener('message', _codeversionmessageparser);
-  ws.send('mem.get.000.007');
+    _cncsocket.removeEventListener('open', _codeversionconnectionhandler);
+    _cncsocket.addEventListener('message', _codeversionmessageparser);
+    ws.send('mem.get.000.007');
 };
 
 function getversion(){
-  _createWebSocket();
-  _cncsocket.addEventListener('open', _codeversionconnectionhandler);
+    _createWebSocket();
+    _cncsocket.addEventListener('open', _codeversionconnectionhandler);
 }
 
+var _codeversionsettinghandler = function() {
+    var value = $('#gittaginput').val(); 
+    _cncsocket.send('mem.set.000.007.'+value); 
+    _cncsocket.removeEventListener('open', _codeversionsettinghandler);
+};
+
 function setversion() { 
-  var value = $('#gittaginput').val(); 
-  _wsconnect().then(function(ws){
-    ws.send('mem.set.000.007.'+value); 
-  });
+  _createWebSocket();
+  _cncsocket.addEventListener('open', _codeversionsettinghandler);
 }
 
 var _loadScript = function(url, require)  { 
