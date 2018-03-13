@@ -18,7 +18,7 @@ var LinearStage = function (options) {
     
     var _send = function (/* a comma separated argument list */) {
         var argarray = [].slice.apply(arguments).slice(0);
-        cncjs.connect().then(function(ws){
+        cnc.connect().then(function(ws){
             ws.send(argarray.join('.'));    
         });
     }
@@ -147,14 +147,4 @@ var LinearStage = function (options) {
     };
 };
 
-    
-//Helpers
-Number.prototype.forEach = function (callback) {
-    if (this === 0) return false;
-    for (var i = 0; i < this; i++) {
-        callback(i);
-    }
-};
-
-    
  
