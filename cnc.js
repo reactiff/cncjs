@@ -170,6 +170,7 @@ var cnc = cnc || new (function () {
     var _fulfillSocketPromise = function(resolve){
         if(_cncsocket.readyState===1){
             resolve(_cncsocket);
+            return;
         }
 
         if(_cncsocket.readyState===2) { //closing
