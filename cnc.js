@@ -165,7 +165,7 @@ var cnc = cnc || new (function () {
 
     var _connect = function () {
         return new Promise((resolve, reject) => {
-            if (_websock.readyState===1) {
+            if (_websock && _websock.readyState===1) {
                 resolve(_websock);
             } else {
                 if (!_websock) {
