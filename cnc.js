@@ -181,7 +181,7 @@ var cnc = cnc || new (function () {
         if(_cncsocket.readyState===3) { //closed
             //create a new socket
             _cncsocket = _createWebSocket();
-            _registerSocketMessageHandler(_socketMessageHandler);
+            _cncsocket.addEventListener("message", _socketMessageHandler);
         }
         
         //if we got here, the socket is opening
@@ -204,8 +204,8 @@ var cnc = cnc || new (function () {
 
         _init();
 
-        _registerSocketMessageHandler(_socketMessageHandler);
-        
+        _cncsocket.addEventListener("message", _socketMessageHandler);
+
         return _this;
 
     };
