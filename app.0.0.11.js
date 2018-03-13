@@ -65,7 +65,6 @@ var _scriptLoaded = function (tag) {
       }
     });
     if(numloaded===_requiredScripts.length){
-      alert('ready to load main');
       _loadScript(_mainScript, false);
     }
 };
