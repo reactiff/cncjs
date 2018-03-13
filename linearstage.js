@@ -1,9 +1,5 @@
 var LinearStage = function (options) {
 
-    //testing releases
-    
-    var _websock;
-    
     var _name = options.name;
 
     var _pins = {
@@ -22,12 +18,10 @@ var LinearStage = function (options) {
     
     var _send = function (/* a comma separated argument list */) {
         var argarray = [].slice.apply(arguments).slice(0);
-        _websock.send(argarray.join('.'));
+        cncjs.connect().then(function(ws){
+            ws.send(argarray.join('.'));    
+        });
     }
-
-    var _readPin = function (pin) {
-        //this needs to return a promise
-    };
 
     var _writePin = function (pin, data) {
         _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
@@ -39,31 +33,16 @@ var LinearStage = function (options) {
         _writePin(_pins.ms2, stepsize[1]);
         _writePin(_pins.ms3, stepsize[2]);  
     };
-    var _move = function(mm, res){
-        
+
+    var _move = function (mm, res) {
         _executing = true;
-        
         var numsteps = parseInt(res * mm);
-        
         var dir = 1;
-        if (numsteps < 0) {
-            numsteps = Math.abs(numsteps);
-            dir = 0;
-        }
-
-        _send('exe.pin.' + _pins.pwm.toString().padStart(2, '0') + '.0');  //disengage
-        _send('exe.pin.' + _pins.dir.toString().padStart(2, '0') + '.' + dir);  //dir
-        
-        var stepsize = '111';
-        
-        _writePin(_pins.ms1, stepsize[0]);
-        _writePin(_pins.ms2, stepsize[1]);
-        _writePin(_pins.ms3, stepsize[2]);
-        
-        
-        _send('mov.pin.' + _pins.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
-        
-
+        if (numsteps < 0) { numsteps = Math.abs(numsteps); dir = 0; }
+        _send('exe.pin.' + _p.pwm.toString().padStart(2, '0') + '.0');  //disengage
+        _send('exe.pin.' + _p.dir.toString().padStart(2, '0') + '.' + dir);  //dir
+        _setstepsize('111');
+        _send('mov.pin.' + _p.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
     };
     
     var _onstartpwmclick = function (e) {
@@ -107,31 +86,10 @@ var LinearStage = function (options) {
 
                     : null;                           // otherwise return null so we know there was nothing specified
 
-        //set step size
+         //set step size
         if (stepdivisor) {
-            var stepsize;
-            switch (parseInt(stepdivisor)) {
-                case 1:
-                    stepsize = '000';
-                    break;
-                case 2:
-                    stepsize = '100';
-                    break;
-                case 4:
-                    stepsize = '010';
-                    break;
-                case 8:
-                    stepsize = '110';
-                    break;
-                case 16:
-                    stepsize = '111';
-                    break;
-                default:
-                    break;
-            }
-            _writePin(_pins.ms1, stepsize[0]);
-            _writePin(_pins.ms2, stepsize[1]);
-            _writePin(_pins.ms3, stepsize[2]);
+            var codemap = { '1': '000', '2': '100', '4': '010', '8': '110', '16': '111' };
+            _setstepsize(codemap[stepdivisor]);
         }
 
         _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), ondur, offdur, _easing);
@@ -153,40 +111,23 @@ var LinearStage = function (options) {
         var dir = mm<0 ? 0 : 1;
         var steps = parseInt(parseFloat(_res) * Math.abs(mm));
         
-        var cmd = _pins.pwm.toString().padStart(2, "0") + '.' +
+        return _pins.pwm.toString().padStart(2, "0") + '.' +
                _pins.dir.toString().padStart(2, "0") + '.' +
                dir.toString() + '.' +
                steps.toString().padStart(7, "0");
         
-        console.log(cmd);
-        
-        return cmd;
-            
     };
+    
+    var _message = function (evt) { if (evt.data == 'ok') { _executing = false; } };
+
     
     return new function () {
 
         var self = this;
 
-        _websock = new WebSocket('ws://' + window.location.hostname + ':81/');
-        _websock.onopen = function (evt) { console.log(_name + ' websocket opened'); };
-        _websock.onclose = function (evt) { console.log(_name + ' websocker closed'); alert(_name + ' WebSock closed!'); };
-        _websock.onerror = function (evt) { console.log(_name + ' websocket error:\n\t' + evt); alert(_name + ' WebSock error!\n\t' + evt.toString()); }; 
-        _websock.onmessage = function (evt) {
-            console.log('>>> ' + _name + ' websocket message: ' + evt.data); var data = evt.data;
-            if(evt.data=='ok'){
-                _executing = false;
-            }
-        };
-
         self.engage = function (direction, stepsize) {
-
-            _writePin(_pins.ms1, stepsize[0]);
-            _writePin(_pins.ms2, stepsize[1]);
-            _writePin(_pins.ms3, stepsize[2]);
-
+            _setstepsize(stepsize);
             _writePin(_pins.dir, direction);
-            
             _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
         };
 
@@ -197,12 +138,11 @@ var LinearStage = function (options) {
         self.move = _move;
         self.getvector = _getvector;
         self.setstepsize = _setstepsize;
-        self.setorigin = function() {
-        };
-
+        self.setorigin = function() { };
         self.onstartpwmclick = _onstartpwmclick;
         self.onstoppwmclick = _onstoppwmclick;
-
+        self.message = _message;
+        
         return self;
     };
 };
