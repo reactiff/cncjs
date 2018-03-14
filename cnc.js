@@ -24,9 +24,9 @@ var cnc = cnc || new (function () {
         }
         var cmd = m3dqueue.shift();
         console.log('--> send ' + cmd);
-        _axis.X.setstepsize(STEPSIZE.WHOLE);
-        _axis.Y.setstepsize(STEPSIZE.WHOLE);
-        _axis.Z.setstepsize(STEPSIZE.WHOLE);
+        _axis.X.setstepsize(STEPSIZE.HALF);
+        _axis.Y.setstepsize(STEPSIZE.HALF);
+        _axis.Z.setstepsize(STEPSIZE.HALF);
         cnc.connect().then(function(socket){
             socket.send(cmd);
         });
