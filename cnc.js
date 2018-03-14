@@ -271,3 +271,63 @@ var cnc = cnc || new (function () {
 //         websock.send('clr.dsp');
 //     }
 // }
+
+
+
+var Vector = function (x, y, z) {
+
+    var _this;
+    
+    /*
+    Accepts a vector object and passess it through as a return object, adjusting the vector position
+    */
+    var _add = function (delta) {
+        if (!delta.hasOwnProperty('x') || !delta.hasOwnProperty('y') || !delta.hasOwnProperty('z')) {
+            throw 'Delta parameter must be a vector or object defining x, y and z values';
+        }
+        _this.x += delta.x;
+        _this.y += delta.y;
+        _this.z += delta.z;
+        return delta;
+    };
+
+    /*
+    Accepts a scalar number representing the change in x, adjusts the x position and returns a new vector object representing the change
+    */
+    var _addx = function (amount) {
+        _this.x += amount;
+        return new Vector(amount, 0, 0);
+    };
+
+    /*
+    Accepts a scalar number representing the change in y, adjusts the y position and returns a new vector object representing the change
+    */
+    var _addy = function (amount) {
+        _this.y += amount;
+        return new Vector(0, amount, 0);
+    };
+
+    /*
+    Accepts a scalar number representing the change in z, adjusts the z position and returns a new vector object representing the change
+    */
+    var _addz = function (amount) {
+        _this.z += amount;
+        return new Vector(0, 0, amount);
+    };
+
+    return new function () {
+
+        _this = this;
+
+        _this.x = x || 0;
+        _this.y = y || 0;
+        _this.z = z || 0;
+                
+        _this.add = _add;
+        _this.addx = _addx;
+        _this.addy = _addy;
+        _this.addz = _addz;
+
+        return _this;
+    };
+};
