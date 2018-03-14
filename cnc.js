@@ -1,6 +1,8 @@
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 var cnc = cnc || new (function () {
 
+    var _speed = '000';
+    
     var STEPSIZE = {
         WHOLE: '000',
         HALF: '100',
@@ -23,15 +25,18 @@ var cnc = cnc || new (function () {
             return;
         }
         var cmd = m3dqueue.shift();
-        console.log('--> send ' + cmd);
-        _axis.X.setstepsize(STEPSIZE.HALF);
-        _axis.Y.setstepsize(STEPSIZE.HALF);
-        _axis.Z.setstepsize(STEPSIZE.HALF);
+        _axis.X.setstepsize(_speed);
+        _axis.Y.setstepsize(_speed);
+        _axis.Z.setstepsize(_speed);
         cnc.connect().then(function(socket){
             socket.send(cmd);
         });
     };
 
+    var _setspeed = function(val){
+        _speed = val;
+    };
+    
     var _axis = {
         X: new LinearStage({
             name: "X axis",
@@ -200,7 +205,8 @@ var cnc = cnc || new (function () {
         _this.axis = _axis;
         _this.move3d = _move3d;
         _this.connect = _promiseSocket;
-
+        _this.setspeed = _setspeed;
+        
         _init();
 
         _cncsocket.addEventListener("message", _socketMessageHandler);
