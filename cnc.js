@@ -149,12 +149,11 @@ var cnc = cnc || new (function () {
 
     };
 
-    var _move3d = function (dx, dy, dz) {
-
+    var _move3d = function (v) {
         var msg = 'm3d.' +
-            _axis.X.getvector(dx) + '.' +
-            _axis.Y.getvector(dy) + '.' +
-            _axis.Z.getvector(dz);
+            _axis.X.getvector(v.x) + '.' +
+            _axis.Y.getvector(v.y) + '.' +
+            _axis.Z.getvector(v.z);
 
         m3dqueue.push(msg);
 
