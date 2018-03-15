@@ -1,24 +1,26 @@
+var STEPSIZE = {
+    WHOLE: '000',
+    HALF: '100',
+    QUARTER: '010',
+    EIGHTH: '110',
+    SIXTEENTH: '111'
+};
+
+var DIRECTION = {
+    FORWARD: 1,
+    REVERSE: 0
+};
+
+
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 var cnc = cnc || new (function () {
 
     var _this;
+    var _drawingcontext;
     
-    var _speed = '000';
+    const _subscriptions = {};
     
-    var STEPSIZE = {
-        WHOLE: '000',
-        HALF: '100',
-        QUARTER: '010',
-        EIGHTH: '110',
-        SIXTEENTH: '111'
-    };
-
-    var DIRECTION = {
-        FORWARD: 1,
-        REVERSE: 0
-    };
-
-    var m3dqueue = new Array();
+    const m3dqueue = [];
     var m3dexecuting = false;
     
     var _nextM3dCommand = function () {
@@ -27,51 +29,29 @@ var cnc = cnc || new (function () {
             return;
         }
         var cmd = m3dqueue.shift();
-        _axis.X.setstepsize(_speed);
-        _axis.Y.setstepsize(_speed);
-        _axis.Z.setstepsize(_speed);
+        _axis.X.setstepsize(_this.options.speed);
+        _axis.Y.setstepsize(_this.options.speed);
+        _axis.Z.setstepsize(_this.options.speed);
         cnc.connect().then(function(socket){
             socket.send(cmd);
         });
-    };
-
-    var _setspeed = function(val){
-        _speed = val;
     };
     
     var _axis = {
         X: new LinearStage({
             name: "X axis",
             resolution: 2770,
-            pins: {
-                ms1: 0,
-                ms2: 1,
-                ms3: 2,
-                dir: 3,
-                pwm: 4
-            }
+            pins: { ms1: 0, ms2: 1, ms3: 2, dir: 3, pwm: 4 }
         }),
         Y: new LinearStage({
             name: "Y axis",
             resolution: 5000,
-            pins: {
-                ms1: 8,
-                ms2: 9,
-                ms3: 10,
-                dir: 11,
-                pwm: 12
-            }
+            pins: { ms1: 8, ms2: 9, ms3: 10, dir: 11, pwm: 12 }
         }),
         Z: new LinearStage({
             name: "Z axis",
             resolution: 4000,
-            pins: {
-                ms1: 24,
-                ms2: 25,
-                ms3: 26,
-                dir: 27,
-                pwm: 28
-            }
+            pins: { ms1: 24, ms2: 25, ms3: 26, dir: 27, pwm: 28 }
         })
     };
 
@@ -151,7 +131,8 @@ var cnc = cnc || new (function () {
 
     };
 
-    var _move3d = function (v) {
+    var _move = function (v) {
+        
         var msg = 'm3d.' +
             _axis.X.getvector(v.x) + '.' +
             _axis.Y.getvector(v.y) + '.' +
@@ -164,9 +145,25 @@ var cnc = cnc || new (function () {
             _nextM3dCommand();
         }
 
-    };
+        var _newpos = _this.pos.current.copy();
+        _newpos.add(v);
 
+        if (_canvas) {
+            if (_this.pos.current.z > 0) {
+                _drawingcontext.strokeStyle = "#ff0000";
+                _drawingcontext.lineWidth = _this.options.tooldiameter * 100;
+                _drawingcontext.moveTo(_this.pos.current.x * 100, _this.pos.current.y * 100);
+                _drawingcontext.lineTo(_newpos.x * 100, _newpos.y * 100);
+                _drawingcontext.stroke();
+            }
+        }
+        _this.pos.current = _newpos;
+    };
+    
     var _socketMessageHandler = function(evt, flags, number) {
+        if(_subscriptions[evt.data]){
+            _subscriptions[evt.data]();
+        }
         if (evt.data == 'm3d.ok') {
             console.log('####### 3d command completed.  Sending next command ######');
             _nextM3dCommand();
@@ -198,15 +195,96 @@ var cnc = cnc || new (function () {
             _fulfillSocketPromise(resolve);
         });
     }
+    
+    
 
     return new function () {
 
-        var _this = this; //save the instance reference because 'this' will always change
+        _this = this; //save the instance reference because 'this' will always change
 
         _this.axis = _axis;
-        _this.move3d = _move3d;
         _this.connect = _promiseSocket;
-        _this.setspeed = _setspeed;
+        
+        _this.options = {};
+
+        _this.setoptions = (options) => {
+            Object.keys(options).forEach(function (key) {
+                _this.options[key] = options[key];
+            });
+        };
+
+        _this.pos = {};
+        _this.pos.current = new Vector(); 
+
+        var _drawingcontext;
+        _this.setcanvas = (canvas) => {
+            _canvas = canvas;
+
+            _drawingcontext = _canvas.getContext("2d");
+            _drawingcontext.scale(0.1, 0.1);
+            
+        };
+
+        _this.endprogram = () => {
+            var _drawingcontext = _canvas.getContext("2d");
+            _drawingcontext.scale(0.1, 0.1);
+        };
+        _this.findsurface = () => {
+
+            return new Promise((resolve, reject) => {
+
+                cnc.connect().then((socket) => {
+
+                    //setup a message listener and when a message with interrupt id int.surface is received, resolve
+                    cnc.subscribe('int.surface', function () {
+                        cnc.unsubscribe('int.surface');
+                        resolve();
+                    });
+
+                    //set the direction for Z axis to move down its 1
+                    socket.send('exe', 'pin', _axis.Z.pins.dir.toString().padStart(2, '0'), 1);
+
+                    //setup pin 7 as input
+                    socket.send('mod.pin.07.1'); //set pin 7 mode to input (easy to remember: 1 for [I]nput, 0 for [O]utput)
+
+                    //setup an interrupt for condition when pin 7 becomes LOW, this will send a message 'int.surface'
+                    //NOTE: Interrupt is automatically removed after condition is met, no need to remove it explicitly
+                    socket.send('int.pin.07.0.surface'); //set up interrupt with id 'surface' for condition when pin 7 is low
+
+                    var msg = 'm3d.' +
+                        _axis.X.getvector(0) + '.' +
+                        _axis.Y.getvector(0) + '.' +
+                        _axis.Z.getvector(999);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
+                    
+                    socket.send(msg);
+
+
+                });
+            });
+        }; //requires contact sensor
+                
+        _this.retract = () => {
+            _this.movezto(-Math.abs(_this.options.retract));
+        };      //raise the tool
+        
+        _this.tool = {
+            engage: () => { console.log('tool power on');}
+        };  //tool power on
+
+        _this.move = _move;
+
+        _this.cutin = () => { _this.movezto(_this.options.depth); };          //lower the tool to the cut depth, penetrating the surface
+        _this.movex = (dx) => { _this.move(new Vector(dx, 0, 0)); };
+        _this.movey = (dy) => { _this.move(new Vector(0, dy, 0)); };
+        _this.movez = (dz) => { _this.move(new Vector(0, 0, dz)); };
+        _this.moveto = (pos) => { _this.move(_this.pos.current.diff(pos)); };
+        _this.movexto = (coord) => { _this.move(_this.pos.current.diffx(coord)); };
+        _this.moveyto = (coord) => { _this.move(_this.pos.current.diffy(coord)); };
+        _this.movezto = (coord) => { _this.move(_this.pos.current.diffz(coord)); };
+        _this.savepos = (id, pos) => { _this.pos[id] = pos.copy(); };
+        
+        _this.subscribe = (id, cb) => { _subscriptions[id] = cb; };
+        _this.unsubscribe = (id) => { _subscriptions[id] = null; };
         
         _init();
 
