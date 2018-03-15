@@ -15,7 +15,7 @@ var _codeversionmessageparser = function(evt){
       var gittag = t[1];
       $('#gittaginput').val(gittag);
       //git version
-      var files = ['etag.js', 'linearstage.js', 'rotarystage.js']; //main file last
+      var files = ['etag.js', 'vector.js', 'linearstage.js', 'rotarystage.js']; //main file last
       files.forEach(function(filename){
         _loadScript('https://cdn.rawgit.com/nycdude777/cncjs/' + gittag + '/' + filename, true);
       });
