@@ -112,7 +112,7 @@ var LinearStage = function (options) {
     
     return new function () {
 
-        var _this = this;
+        _this = this;
 
         _this.pins = {
             ms1: options.pins.ms1,
