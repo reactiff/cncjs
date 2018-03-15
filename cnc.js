@@ -11,7 +11,6 @@ var DIRECTION = {
     REVERSE: 0
 };
 
-
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 var cnc = cnc || new (function () {
 
@@ -19,6 +18,7 @@ var cnc = cnc || new (function () {
     var _drawingcontext;
     
     const _subscriptions = {};
+    const _keymap = {};
     
     const m3dqueue = [];
     var m3dexecuting = false;
@@ -38,24 +38,13 @@ var cnc = cnc || new (function () {
     };
     
     var _axis = {
-        X: new LinearStage({
-            name: "X axis",
-            resolution: 2770,
-            pins: { ms1: 0, ms2: 1, ms3: 2, dir: 3, pwm: 4 }
-        }),
-        Y: new LinearStage({
-            name: "Y axis",
-            resolution: 5000,
-            pins: { ms1: 8, ms2: 9, ms3: 10, dir: 11, pwm: 12 }
-        }),
-        Z: new LinearStage({
-            name: "Z axis",
-            resolution: 4000,
-            pins: { ms1: 24, ms2: 25, ms3: 26, dir: 27, pwm: 28 }
-        })
+        X: new LinearStage({ name: "X axis", resolution: 2770,
+            pins: { ms1: 0, ms2: 1, ms3: 2, dir: 3, pwm: 4 } }),
+        Y: new LinearStage({ name: "Y axis", resolution: 5000,
+            pins: { ms1: 8, ms2: 9, ms3: 10, dir: 11, pwm: 12 } }),
+        Z: new LinearStage({ name: "Z axis", resolution: 4000, 
+            pins: { ms1: 24, ms2: 25, ms3: 26, dir: 27, pwm: 28 } })
     };
-
-    var keymap = {};
 
     var _init = function () {
 
@@ -66,11 +55,8 @@ var cnc = cnc || new (function () {
                 return;
             }
 
-            if (keymap[e.keyCode]) {
-                return;
-            }
-
-            keymap[e.keyCode] = 1;
+            if (_keymap[e.keyCode]) { return; }
+            _keymap[e.keyCode] = 1;
 
             var stepsize = e.altKey ? STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
 
@@ -115,7 +101,7 @@ var cnc = cnc || new (function () {
                 _axis.Z.disengage();
             }
 
-            keymap[e.keyCode] = 0;
+            _keymap[e.keyCode] = 0;
 
         });
 
