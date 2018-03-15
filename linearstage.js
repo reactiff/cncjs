@@ -1,15 +1,10 @@
 var LinearStage = function (options) {
 
+    var _this;
+    
     var _name = options.name;
 
-    var _pins = {
-        ms1: options.pins.ms1,
-        ms2: options.pins.ms2,
-        ms3: options.pins.ms3,
-        dir: options.pins.dir,
-        pwm: options.pins.pwm
-    };
-
+    
     var _stepsize = '111';
     var _res = options.resolution;
     var _easing = '';
@@ -29,9 +24,9 @@ var LinearStage = function (options) {
 
     var _setstepsize = function(stepsize){
         _stepsize = stepsize;
-        _writePin(_pins.ms1, stepsize[0]);
-        _writePin(_pins.ms2, stepsize[1]);
-        _writePin(_pins.ms3, stepsize[2]);  
+        _writePin(_this.pins.ms1, stepsize[0]);
+        _writePin(_this.pins.ms2, stepsize[1]);
+        _writePin(_this.pins.ms3, stepsize[2]);  
     };
 
     var _move = function (mm, res) {
@@ -39,10 +34,10 @@ var LinearStage = function (options) {
         var numsteps = parseInt(res * mm);
         var dir = 1;
         if (numsteps < 0) { numsteps = Math.abs(numsteps); dir = 0; }
-        _send('exe.pin.' + _pins.pwm.toString().padStart(2, '0') + '.0');  //disengage
-        _send('exe.pin.' + _pins.dir.toString().padStart(2, '0') + '.' + dir);  //dir
+        _send('exe.pin.' + _this.pins.pwm.toString().padStart(2, '0') + '.0');  //disengage
+        _send('exe.pin.' + _this.pins.dir.toString().padStart(2, '0') + '.' + dir);  //dir
         _setstepsize('111');
-        _send('mov.pin.' + _pins.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
+        _send('mov.pin.' + _this.pins.pwm.toString().padStart(2, '0') + '.001.001.' + numsteps);
     };
     
     var _onstartpwmclick = function (e) {
@@ -66,11 +61,11 @@ var LinearStage = function (options) {
         if (ondur === '') ondur = '001';
         if (offdur === '') offdur = '001';
 
-        _writePin(_pins.pwm, 0);  //disengage anything currently running on the pin
+        _writePin(_this.pins.pwm, 0);  //disengage anything currently running on the pin
 
         var dir = $(e).attr('dir');
 
-        _writePin(_pins.dir, dir);
+        _writePin(_this.pins.dir, dir);
             
         //See if the element has any attributes pertaining to step size
         //1 represents FULL step.  Divisor acts as a denominator in the fraction, so 1/1, 1/2, 1/4 and so on...
@@ -86,7 +81,7 @@ var LinearStage = function (options) {
             _setstepsize(codemap[stepdivisor]);
         }
 
-        _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), ondur, offdur, _easing);
+        _send('pwm', 'pin', _this.pins.pwm.toString().padStart(2, "0"), ondur, offdur, _easing);
     };
 
     var _onstoppwmclick = function (e) {
@@ -94,10 +89,10 @@ var LinearStage = function (options) {
         if(_executing) return;
         
         if (_easing!=='') {
-            _send('pwm.pin', _pins.pwm.toString().padStart(2, "0"), '000.000', _easing);
+            _send('pwm.pin', _this.pins.pwm.toString().padStart(2, "0"), '000.000', _easing);
         }
         else {
-            _writePin(_pins.pwm, 0);
+            _writePin(_this.pins.pwm, 0);
         }
     };
 
@@ -105,8 +100,8 @@ var LinearStage = function (options) {
         var dir = mm<0 ? 0 : 1;
         var steps = parseInt(parseFloat(_res) * Math.abs(mm));
         
-        return _pins.pwm.toString().padStart(2, "0") + '.' +
-               _pins.dir.toString().padStart(2, "0") + '.' +
+        return _this.pins.pwm.toString().padStart(2, "0") + '.' +
+               _this.pins.dir.toString().padStart(2, "0") + '.' +
                dir.toString() + '.' +
                steps.toString().padStart(7, "0");
         
@@ -117,26 +112,34 @@ var LinearStage = function (options) {
     
     return new function () {
 
-        var self = this;
+        var _this = this;
 
-        self.engage = function (direction, stepsize) {
-            _setstepsize(stepsize);
-            _writePin(_pins.dir, direction);
-            _send('pwm', 'pin', _pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
+        _this.pins = {
+            ms1: options.pins.ms1,
+            ms2: options.pins.ms2,
+            ms3: options.pins.ms3,
+            dir: options.pins.dir,
+            pwm: options.pins.pwm
         };
-
-        self.disengage = function () {
-            _writePin(_pins.pwm, 0);
-        };
-
-        self.move = _move;
-        self.getvector = _getvector;
-        self.setstepsize = _setstepsize;
-        self.setorigin = function() { };
-        self.onstartpwmclick = _onstartpwmclick;
-        self.onstoppwmclick = _onstoppwmclick;
-        self.message = _message;
         
-        return self;
+        _this.engage = function (direction, stepsize) {
+            _setstepsize(stepsize);
+            _writePin(_this.pins.dir, direction);
+            _send('pwm', 'pin', _this.pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
+        };
+
+        _this.disengage = function () {
+            _writePin(_this.pins.pwm, 0);
+        };
+
+        _this.move = _move;
+        _this.getvector = _getvector;
+        _this.setstepsize = _setstepsize;
+        _this.setorigin = function() { };
+        _this.onstartpwmclick = _onstartpwmclick;
+        _this.onstoppwmclick = _onstoppwmclick;
+        _this.message = _message;
+        
+        return _this;
     };
 };
