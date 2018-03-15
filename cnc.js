@@ -1,6 +1,8 @@
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 var cnc = cnc || new (function () {
 
+    var _this;
+    
     var _speed = '000';
     
     var STEPSIZE = {
@@ -216,118 +218,5 @@ var cnc = cnc || new (function () {
 })();
 
 
-// function toggle(e) {
-//     if (e.innerHTML == 'Off') {
-//         cncjs.writePin(e.getAttribute('pin'), 1);
-//         e.innerHTML = 'On';
-//     }
-//     else {
-//         cncjs.writePin(e.getAttribute('pin'), 0);
-//         e.innerHTML = 'Off';
-//     }
-// }
 
 
-// function stepPWM(e) {
-//     var dirpin = $('#movedirpin').val().padStart(2, "0");
-//     var pwmpin = $('#movepwmpin').val().padStart(2, "0");
-
-//     var ondur = $('#moveondur').val().padStart(3, "0");
-//     var offdur = $('#moveoffdur').val().padStart(3, "0");
-
-//     var steps = parseInt($('#movesteps').val());
-//     if (!(steps != 0)) {
-//         return;
-//     }
-//     var dir = 1;
-//     if (steps < 0) {
-//         steps = Math.abs(steps);
-//         dir = 0;
-//     }
-//     websock.send('exe.pin.' + pwmpin + '.0');  //disengage
-//     websock.send('exe.pin.' + dirpin + '.' + dir);  //dir
-//     websock.send('mov.pin.' + pwmpin + '.' + ondur + '.' + offdur + '.' + steps);
-// }
-// function flashText(opt, cycle) {
-//     cycle = cycle || 1;
-
-//     var curcol = opt.fgcol;
-
-//     if (cycle % 2 === 0) { //invert colors on even cycles
-//         curcol = opt.bgcol;
-//     }
-
-//     websock.send('txt.dsp.' + curcol +
-//         '.' + opt.size +
-//         '.' + opt.align +
-//         '.' + opt.x.toString().padStart(3, '0') +
-//         '.' + opt.y.toString().padStart(3, '0') +
-//         '.' + opt.text);
-
-//     if (cycle < opt.num * 2) {
-//         setTimeout(flashText, opt.delayms, opt, cycle + 1);
-//     }
-//     else {
-//         websock.send('clr.dsp');
-//     }
-// }
-
-
-
-var Vector = function (x, y, z) {
-
-    var _this;
-    
-    /*
-    Accepts a vector object and passess it through as a return object, adjusting the vector position
-    */
-    var _add = function (delta) {
-        if (!delta.hasOwnProperty('x') || !delta.hasOwnProperty('y') || !delta.hasOwnProperty('z')) {
-            throw 'Delta parameter must be a vector or object defining x, y and z values';
-        }
-        _this.x += delta.x;
-        _this.y += delta.y;
-        _this.z += delta.z;
-        return delta;
-    };
-
-    /*
-    Accepts a scalar number representing the change in x, adjusts the x position and returns a new vector object representing the change
-    */
-    var _addx = function (amount) {
-        _this.x += amount;
-        return new Vector(amount, 0, 0);
-    };
-
-    /*
-    Accepts a scalar number representing the change in y, adjusts the y position and returns a new vector object representing the change
-    */
-    var _addy = function (amount) {
-        _this.y += amount;
-        return new Vector(0, amount, 0);
-    };
-
-    /*
-    Accepts a scalar number representing the change in z, adjusts the z position and returns a new vector object representing the change
-    */
-    var _addz = function (amount) {
-        _this.z += amount;
-        return new Vector(0, 0, amount);
-    };
-
-    return new function () {
-
-        _this = this;
-
-        _this.x = x || 0;
-        _this.y = y || 0;
-        _this.z = z || 0;
-                
-        _this.add = _add;
-        _this.addx = _addx;
-        _this.addy = _addy;
-        _this.addz = _addz;
-
-        return _this;
-    };
-};
