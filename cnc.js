@@ -50,7 +50,7 @@ var cnc = cnc || new (function () {
        
         cnc.connect().then(function(socket){
             console.log(cmd.number + ': ' + cmd.message);
-            socket.send(cmd);
+            socket.send(cmd.message);
         });
     };
     
