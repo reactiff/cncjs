@@ -4,7 +4,7 @@ var LinearStage = function (options) {
     
     var _name = options.name;
 
-    
+    var _stepdivisor = 1;
     var _stepsize = '111';
     var _res = options.resolution;
     var _easing = '';
@@ -23,7 +23,7 @@ var LinearStage = function (options) {
     };
 
     var _setspeed = (speed) => {
-        _this.stepdivisor = speed.divisor;
+        _stepdivisor = speed.divisor;
         _this.setstepsize(speed.step);
     };
     
@@ -102,8 +102,9 @@ var LinearStage = function (options) {
     };
 
     var _getvector = function(mm){
+        
         var dir = mm<0 ? 0 : 1;
-        var steps = parseInt(parseFloat(_res) * Math.abs(mm));
+        var steps = parseInt((parseFloat(_res)/_stepdivisor) * Math.abs(mm)); //adjusted for speed by stepdivisor
         
         return _this.pins.pwm.toString().padStart(2, "0") + '.' +
                _this.pins.dir.toString().padStart(2, "0") + '.' +
