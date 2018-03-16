@@ -15,6 +15,8 @@ var DIRECTION = {
 var cnc = cnc || new (function () {
 
     var _this;
+    
+    var _canvas;
     var _drawingcontext;
     
     const _subscriptions = {};
@@ -204,7 +206,11 @@ var cnc = cnc || new (function () {
 
         _this.pos = {};
         _this.pos.current = new Vector(); 
-
+        
+        _this.setorigin = () => {
+            _this.pos.current = new Vector(); 
+        };
+        
         var _drawingcontext;
         _this.setcanvas = (canvas) => {
             _canvas = canvas;
