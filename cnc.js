@@ -35,6 +35,7 @@ var cnc = cnc || new (function () {
         _axis.Y.setstepsize(_this.options.speed);
         _axis.Z.setstepsize(_this.options.speed);
         cnc.connect().then(function(socket){
+            console.log('Execute command: ' + cmd);
             socket.send(cmd);
         });
     };
@@ -156,8 +157,14 @@ var cnc = cnc || new (function () {
             _subscriptions[evt.data]();
         }
         if (evt.data == 'm3d.ok') {
-            
-            _nextM3dCommand();
+            if(confirm('Command execution finished, execute next?')){
+                _nextM3dCommand();
+            }
+            else
+            {
+                m3dexecuting = false;
+                return;
+            }
         }
     };
     
