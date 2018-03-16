@@ -145,6 +145,7 @@ var LinearStage = function (options) {
         _this.onstartpwmclick = _onstartpwmclick;
         _this.onstoppwmclick = _onstoppwmclick;
         _this.message = _message;
+        _this.setspeed = _setspeed;
         
         return _this;
     };
