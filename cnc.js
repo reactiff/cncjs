@@ -169,14 +169,7 @@ var cnc = cnc || new (function () {
             _subscriptions[evt.data]();
         }
         if (evt.data == 'm3d.ok') {
-            if(confirm('Command execution finished, execute next?')){
-                _nextM3dCommand();
-            }
-            else
-            {
-                m3dexecuting = false;
-                return;
-            }
+            _nextM3dCommand();
         }
     };
     
