@@ -137,7 +137,7 @@ var cnc = cnc || new (function () {
             cnc.setoffline(true);
             eval(script);
         });
-        $('body').append(btn);
+        $('body').append(btn2);
         
 
     };
