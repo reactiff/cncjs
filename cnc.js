@@ -6,6 +6,14 @@ var STEPSIZE = {
     SIXTEENTH: '111'
 };
 
+var SPEED = {
+    FULL: { step: STEPSIZE.WHOLE, divisor: 16 },
+    HALF: { step: STEPSIZE.HALF, divisor: 8 },
+    QUARTER: { step: STEPSIZE.QUARTER, divisor: 4 },
+    EIGHTH: { step: STEPSIZE.EIGHTH, divisor: 2 },
+    SIXTEENTH: { step: STEPSIZE.SIXTEENTH, divisor: 1 },
+};
+    
 var DIRECTION = {
     FORWARD: 1,
     REVERSE: 0
@@ -25,15 +33,19 @@ var cnc = cnc || new (function () {
     const m3dqueue = [];
     var m3dexecuting = false;
     
+    var _setspeed = (speed) => {
+        _axis.X.setspeed(speed);
+        _axis.Y.setspeed(speed);
+        _axis.Z.setspeed(speed);
+    };
+    
     var _nextM3dCommand = function () {
         if (m3dqueue.length < 1) {
             m3dexecuting = false;
             return;
         }
         var cmd = m3dqueue.shift();
-        _axis.X.setstepsize(_this.options.speed);
-        _axis.Y.setstepsize(_this.options.speed);
-        _axis.Z.setstepsize(_this.options.speed);
+       
         cnc.connect().then(function(socket){
             console.log('Execute command: ' + cmd);
             socket.send(cmd);
@@ -205,6 +217,8 @@ var cnc = cnc || new (function () {
         
         _this.options = {};
 
+        _this.setspeed = _setspeed;
+         
         _this.setoptions = (options) => {
             Object.keys(options).forEach(function (key) {
                 _this.options[key] = options[key];
