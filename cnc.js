@@ -147,11 +147,14 @@ var cnc = cnc || new (function () {
     };
     
     var _socketMessageHandler = function(evt, flags, number) {
+        
+        console.log('[MSG] ' + evt.data);
+        
         if(_subscriptions[evt.data]){
             _subscriptions[evt.data]();
         }
         if (evt.data == 'm3d.ok') {
-            console.log('####### 3d command completed.  Sending next command ######');
+            
             _nextM3dCommand();
         }
     };
