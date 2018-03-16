@@ -24,6 +24,8 @@ var cnc = cnc || new (function () {
 
     var _this;
     
+    var _offlinemode = false;
+    
     var _canvas;
     var _drawingcontext;
     
@@ -47,7 +49,7 @@ var cnc = cnc || new (function () {
         var cmd = m3dqueue.shift();
        
         cnc.connect().then(function(socket){
-            console.log('Execute command: ' + cmd);
+            console.log(cmd.number + ': ' + cmd.message);
             socket.send(cmd);
         });
     };
@@ -127,21 +129,34 @@ var cnc = cnc || new (function () {
             var script = $('#userscript').value || $('#userscript').val();
             eval(script);
         });
-
         $('body').append(btn);
+        
+        var btn2 = $e('button type="button"', 'Commands');
+        $(btn2).click(function (e) {
+            var script = $('#userscript').value || $('#userscript').val();
+            cnc.setoffline(true);
+            eval(script);
+        });
+        $('body').append(btn);
+        
 
     };
 
+    var _msgno = 0;
     var _move = function (v) {
         
         var msg = 'm3d.' +
             _axis.X.getvector(v.x) + '.' +
             _axis.Y.getvector(v.y) + '.' +
             _axis.Z.getvector(v.z);
+        
+        var cmd = { number: ++_msgno, message: msg};
+        m3dqueue.push(cmd);
 
-        m3dqueue.push(msg);
-
-        if (!m3dexecuting) {
+        if(_offlinemode){
+            $('body').append($e('div.command', $e('span.number',cmd.number), $e('span.message',cmd.message) ));
+        }
+        else if (!m3dexecuting) {
             m3dexecuting = true;
             _nextM3dCommand();
         }
@@ -241,7 +256,12 @@ var cnc = cnc || new (function () {
         _this.findsurface = () => {
 
             return new Promise((resolve, reject) => {
-
+    
+                if(_offlinemode){
+                    resolve();
+                    return;
+                }
+                
                 cnc.connect().then((socket) => {
 
                     //setup a message listener and when a message with interrupt id int.surface is received, resolve
@@ -294,6 +314,10 @@ var cnc = cnc || new (function () {
         
         _this.subscribe = (id, cb) => { _subscriptions[id] = cb; };
         _this.unsubscribe = (id) => { _subscriptions[id] = null; };
+        
+        _this.setoffline = (flag) => {
+            _offlinemode = flag;
+        };
         
         _init();
 
