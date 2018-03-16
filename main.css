@@ -1,0 +1,13 @@
+div.command {
+  display: block;
+  border-bottom: thin solid #ddd;
+  padding: 5px;
+}
+div.command span.number {
+  display: inline-block;
+  min-width: 50px;
+}
+div.command span.message {
+  display: inline-block;
+  
+}
