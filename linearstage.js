@@ -22,6 +22,11 @@ var LinearStage = function (options) {
         _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
     };
 
+    var _setspeed = (speed) => {
+        _this.stepdivisor = speed.divisor;
+        _this.setstepsize(speed.step);
+    };
+    
     var _setstepsize = function(stepsize){
         _stepsize = stepsize;
         _writePin(_this.pins.ms1, stepsize[0]);
