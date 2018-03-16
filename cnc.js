@@ -219,10 +219,10 @@ var cnc = cnc || new (function () {
         };
 
         _this.pos = {};
-        _this.pos.current = new Vector(); 
+        _this.pos.current = new Vector(0,0,0); 
         
         _this.setorigin = () => {
-            _this.pos.current = new Vector(); 
+            _this.pos.current = new Vector(0,0,0); 
         };
         
         var _drawingcontext;
