@@ -1,4 +1,4 @@
-var CncWSCommHandleMessage = function(evt, flags, number) {
+var CncWSCommMessageHandler = function(evt, flags, number) {
   console.log('[MSG] ' + evt.data);
   cnc.notify(evt.data);
   if (evt.data == 'm3d.ok') {
@@ -19,7 +19,7 @@ var CncAwaitWSConnection = function(resolve){
     if(_cncsocket.readyState===3) { //closed
         //create a new socket
         _cncsocket = _createWebSocket();
-        _cncsocket.addEventListener("message", CncWSCommHandleMessage);
+        _cncsocket.addEventListener("message", CncWSCommMessageHandler);
     }
 
     //if we got here, the socket is opening
