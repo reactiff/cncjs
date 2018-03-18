@@ -1,3 +1,4 @@
+const _cnc_kb_keymap = {};
 var CncInitUI = function () {
 
     //bind keyboard shortcuts
@@ -7,31 +8,31 @@ var CncInitUI = function () {
             return;
         }
 
-        if (_keymap[e.keyCode]) { return; }
-        _keymap[e.keyCode] = 1;
+        if (_cnc_kb_keymap[e.keyCode]) { return; }
+        _cnc_kb_keymap[e.keyCode] = 1;
 
         var stepsize = e.altKey ? cnc.STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
 
         if (e.keyCode == 37) { // left
-            _axis.X.engage(cnc.DIRECTION.FORWARD, stepsize);
+            cnc.axis.X.engage(cnc.DIRECTION.FORWARD, stepsize);
         }
         else if (e.keyCode == 38) { // up/away
             if (e.shiftKey) {
-                _axis.Z.engage(cnc.DIRECTION.REVERSE, stepsize);
+                cnc.axis.Z.engage(cnc.DIRECTION.REVERSE, stepsize);
             }
             else {
-                _axis.Y.engage(cnc.DIRECTION.REVERSE, stepsize);
+                cnc.axis.Y.engage(cnc.DIRECTION.REVERSE, stepsize);
             }
         }
         else if (e.keyCode == 39) { // right
-            _axis.X.engage(cnc.DIRECTION.REVERSE, stepsize);
+            cnc.axis.X.engage(cnc.DIRECTION.REVERSE, stepsize);
         }
         else if (e.keyCode == 40) { // down/towards
             if (e.shiftKey) {
-                _axis.Z.engage(cnc.DIRECTION.FORWARD, stepsize);
+                cnc.axis.Z.engage(cnc.DIRECTION.FORWARD, stepsize);
             }
             else {
-                _axis.Y.engage(cnc.DIRECTION.FORWARD, stepsize);
+                cnc.axis.Y.engage(cnc.DIRECTION.FORWARD, stepsize);
             }
         }
     });
@@ -39,21 +40,21 @@ var CncInitUI = function () {
     $(document).keyup(function (e) {
 
         if (e.keyCode == 37) { // left
-            _axis.X.disengage();
+            cnc.axis.X.disengage();
         }
         else if (e.keyCode == 38) { // up/away
-            _axis.Y.disengage();
-            _axis.Z.disengage();
+            cnc.axis.Y.disengage();
+            cnc.axis.Z.disengage();
         }
         else if (e.keyCode == 39) { // right
-            _axis.X.disengage();
+            cnc.axis.X.disengage();
         }
         else if (e.keyCode == 40) { // down/towards
-            _axis.Y.disengage();
-            _axis.Z.disengage();
+            cnc.axis.Y.disengage();
+            cnc.axis.Z.disengage();
         }
 
-        _keymap[e.keyCode] = 0;
+        _cnc_kb_keymap[e.keyCode] = 0;
 
     });
 
