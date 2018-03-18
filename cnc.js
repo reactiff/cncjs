@@ -1,29 +1,7 @@
-var STEPSIZE = {
-    WHOLE: '000',
-    HALF: '100',
-    QUARTER: '010',
-    EIGHTH: '110',
-    SIXTEENTH: '111'
-};
-
-var SPEED = {
-    FULL: { step: STEPSIZE.WHOLE, divisor: 16 },
-    HALF: { step: STEPSIZE.HALF, divisor: 8 },
-    QUARTER: { step: STEPSIZE.QUARTER, divisor: 4 },
-    EIGHTH: { step: STEPSIZE.EIGHTH, divisor: 2 },
-    SIXTEENTH: { step: STEPSIZE.SIXTEENTH, divisor: 1 },
-};
-    
-var DIRECTION = {
-    FORWARD: 1,
-    REVERSE: 0
-};
-
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
 var cnc = new (function () {
 
     var _this;
-    
     var _offlinemode = false;
     
     var _canvas;
@@ -34,117 +12,22 @@ var cnc = new (function () {
     
     const m3dqueue = [];
     var m3dexecuting = false;
-    
-    var _setspeed = (speed) => {
-        _axis.X.setspeed(speed);
-        _axis.Y.setspeed(speed);
-        _axis.Z.setspeed(speed);
-    };
-    
-    var _nextM3dCommand = function () {
+          
+    var _executeNextCommand = function () {
         if (m3dqueue.length < 1) {
             m3dexecuting = false;
             return;
         }
         var cmd = m3dqueue.shift();
-       
         cnc.connect().then(function(socket){
             console.log(cmd.number + ': ' + cmd.message);
             socket.send(cmd.message);
         });
     };
-    
-    var _axis = {
-        X: new LinearStage({ name: "X axis", resolution: 2770,
-            pins: { ms1: 0, ms2: 1, ms3: 2, dir: 3, pwm: 4 } }),
-        Y: new LinearStage({ name: "Y axis", resolution: 5000,
-            pins: { ms1: 8, ms2: 9, ms3: 10, dir: 11, pwm: 12 } }),
-        Z: new LinearStage({ name: "Z axis", resolution: 2422, 
-            pins: { ms1: 24, ms2: 25, ms3: 26, dir: 27, pwm: 28 } })
-    };
-
-    var _init = function () {
-
-        //bind keyboard shortcuts
-        $(document).keydown(function (e) {
-
-            if (!e.ctrlKey) { //only respond to keyboard CNC control shortcuts when CTRL key is held down
-                return;
-            }
-
-            if (_keymap[e.keyCode]) { return; }
-            _keymap[e.keyCode] = 1;
-
-            var stepsize = e.altKey ? STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
-
-            if (e.keyCode == 37) { // left
-                _axis.X.engage(DIRECTION.FORWARD, stepsize);
-            }
-            else if (e.keyCode == 38) { // up/away
-                if (e.shiftKey) {
-                    _axis.Z.engage(DIRECTION.REVERSE, stepsize);
-                }
-                else {
-                    _axis.Y.engage(DIRECTION.REVERSE, stepsize);
-                }
-            }
-            else if (e.keyCode == 39) { // right
-                _axis.X.engage(DIRECTION.REVERSE, stepsize);
-            }
-            else if (e.keyCode == 40) { // down/towards
-                if (e.shiftKey) {
-                    _axis.Z.engage(DIRECTION.FORWARD, stepsize);
-                }
-                else {
-                    _axis.Y.engage(DIRECTION.FORWARD, stepsize);
-                }
-            }
-        });
-
-        $(document).keyup(function (e) {
-
-            if (e.keyCode == 37) { // left
-                _axis.X.disengage();
-            }
-            else if (e.keyCode == 38) { // up/away
-                _axis.Y.disengage();
-                _axis.Z.disengage();
-            }
-            else if (e.keyCode == 39) { // right
-                _axis.X.disengage();
-            }
-            else if (e.keyCode == 40) { // down/towards
-                _axis.Y.disengage();
-                _axis.Z.disengage();
-            }
-
-            _keymap[e.keyCode] = 0;
-
-        });
-
-        $($e('textarea#userscript.code')).appendTo('body');
-
-        var btn = $e('button type="button"', 'Execute');
-        $(btn).click(function (e) {
-            var script = $('#userscript').value || $('#userscript').val();
-            eval(script);
-        });
-        $('body').append(btn);
-        
-        var btn2 = $e('button type="button"', 'Commands');
-        $(btn2).click(function (e) {
-            var script = $('#userscript').value || $('#userscript').val();
-            cnc.setoffline(true);
-            eval(script);
-        });
-        $('body').append(btn2);
-        
-
-    };
 
     var _msgno = 0;
     var _move = function (v) {
-        
+       
         var msg = 'm3d.' +
             _axis.X.getvector(v.x) + '.' +
             _axis.Y.getvector(v.y) + '.' +
@@ -158,7 +41,7 @@ var cnc = new (function () {
         }
         else if (!m3dexecuting) {
             m3dexecuting = true;
-            _nextM3dCommand();
+            _executeNextCommand();
         }
 
         var _newpos = _this.pos.current.copy();
@@ -176,56 +59,32 @@ var cnc = new (function () {
         _this.pos.current = _newpos;
     };
     
-    var _socketMessageHandler = function(evt, flags, number) {
-        
-        console.log('[MSG] ' + evt.data);
-        
-        if(_subscriptions[evt.data]){
-            _subscriptions[evt.data]();
-        }
-        if (evt.data == 'm3d.ok') {
-            _nextM3dCommand();
-        }
-    };
-    
-    var _fulfillSocketPromise = function(resolve){
-        if(_cncsocket.readyState===1){
-            resolve(_cncsocket);
-            return;
-        }
-
-        if(_cncsocket.readyState===2) { //closing
-            _cncsocket.close();
-        }
-            
-        if(_cncsocket.readyState===3) { //closed
-            //create a new socket
-            _cncsocket = _createWebSocket();
-            _cncsocket.addEventListener("message", _socketMessageHandler);
-        }
-        
-        //if we got here, the socket is opening
-        setTimeout(_fulfillSocketPromise, 50, resolve);
-    };
-    
-    var _promiseSocket = function () {
-        return new Promise((resolve, reject) => {
-            _fulfillSocketPromise(resolve);
-        });
-    }
     
     
-
     return new function () {
 
         _this = this; //save the instance reference because 'this' will always change
 
-        _this.axis = _axis;
-        _this.connect = _promiseSocket;
+        //enums defined in cnc_enums.js
+        _this.STEPSIZE = CNCSTEPSIZE;
+        _this.SPEED = CNCSPEED;
+        _this.DIRECTION = CNCDIRECTION;
+        
+        _this.notify = (msgdata) => {
+            if(_subscriptions[msgdata]){
+                _subscriptions[msgdata]();
+            }
+        };
+        
+        _this.connect = CncWSConnect;
         
         _this.options = {};
 
-        _this.setspeed = _setspeed;
+        _this.setspeed = (speed) => {
+            Object.keys(_axis).forEach((key)=>{
+                _axis[key].setspeed(speed);
+            });
+        };
          
         _this.setoptions = (options) => {
             Object.keys(options).forEach(function (key) {
@@ -236,23 +95,20 @@ var cnc = new (function () {
         _this.pos = {};
         _this.pos.current = new Vector(0,0,0); 
         
-        _this.setorigin = () => {
-            _this.pos.current = new Vector(0,0,0); 
-        };
+        _this.setorigin = () => { _this.pos.current = new Vector(0,0,0); };
         
         var _drawingcontext;
         _this.setcanvas = (canvas) => {
             _canvas = canvas;
-
             _drawingcontext = _canvas.getContext("2d");
             _drawingcontext.scale(0.1, 0.1);
-            
         };
 
         _this.endprogram = () => {
             var _drawingcontext = _canvas.getContext("2d");
             _drawingcontext.scale(0.1, 0.1);
         };
+        
         _this.findsurface = () => {
 
             return new Promise((resolve, reject) => {
@@ -305,13 +161,9 @@ var cnc = new (function () {
             });
         }; //requires contact sensor
                 
-        _this.retract = () => {
-            _this.movezto(-Math.abs(_this.options.retract));
-        };      //raise the tool
+        _this.retract = () => { _this.movezto(-Math.abs(_this.options.retract)); };      //raise the tool
         
-        _this.tool = {
-            engage: () => { console.log('tool power on');}
-        };  //tool power on
+        _this.tool = { engage: () => { console.log('tool power on');} };  //tool power on
 
         _this.move = _move;
 
@@ -332,17 +184,19 @@ var cnc = new (function () {
             _offlinemode = flag;
         };
         
-        _init();
-        
         //new code
         _this.simulator = true;
         
-        _this.Text = _this.Text || CncText;
-        _this.FontSimple = _this.FontSimple || CncFontSimple;
-        _this.GlyphPoint = _this.GlyphPoint || CncGlyphPoint;
-        _this.Glyph = _this.Glyph || CncGlyph;
-        _this.Stroke = _this.Stroke || CncStroke;
+        _this.Text = CncText;
+        _this.FontSimple = CncFontSimple;
+        _this.GlyphPoint = CncGlyphPoint;
+        _this.Glyph = CncGlyph;
+        _this.Stroke = CncStroke;
 
+        var _axis = Axes; //defined in cnc_axes.js
+        
+        CncInitUI(); //defined in cnc_initui.js
+        
         _this.initialize = () => {
             //set default options
             _this.setoptions({
@@ -358,8 +212,8 @@ var cnc = new (function () {
         
         //end new code
         
-        _cncsocket.addEventListener("message", _socketMessageHandler);
-
+        _cncsocket.addEventListener("message", CncWSCommMessageHandler);
+        
         return _this;
 
     };
