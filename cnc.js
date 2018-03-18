@@ -189,7 +189,7 @@ var cnc = new (function () {
         
         _this.Text = CncText;
         _this.FontSimple = CncFontSimple;
-        _this.GlyphPoint = CncGlyphPoint;
+        _this.Point = CncPoint;
         _this.Glyph = CncGlyph;
         _this.Stroke = CncStroke;
 
