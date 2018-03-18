@@ -13,6 +13,8 @@ var cnc = new (function () {
     const m3dqueue = [];
     var m3dexecuting = false;
           
+    var _info;
+    
     var _executeNextCommand = function () {
         if (m3dqueue.length < 1) {
             m3dexecuting = false;
@@ -28,7 +30,7 @@ var cnc = new (function () {
         }
         
         cnc.connect().then(function(socket){
-            console.log(cmd.number + ': ' + cmd.message);
+            console.log(cmd.number + ' ' + cmd.info + ': ' + cmd.message);
             socket.send(cmd.message);
         });
     };
@@ -39,7 +41,7 @@ var cnc = new (function () {
         var msg;
 
         if (cnc.issimulation() || cnc.isoffline()) {
-            msg = 'move: { ' +
+            msg = _info + ': { ' +
                 _this.axis.X.getvector(v.x) + 
                 _this.axis.Y.getvector(v.y) + 
                 _this.axis.Z.getvector(v.z) +
@@ -53,7 +55,7 @@ var cnc = new (function () {
         }
             
         
-        var cmd = { number: ++_msgno, message: msg};
+        var cmd = { number: ++_msgno, message: msg, info: _info};
         m3dqueue.push(cmd);
 
         if(_offlinemode){
@@ -243,6 +245,10 @@ var cnc = new (function () {
         if (!_this.simulator) {
             _cncsocket.addEventListener("message", CncWSCommMessageHandler);
         }
+        
+        _this.setinfo = function (info) {
+            _info = info;
+        };
         
         return _this;
 
