@@ -184,8 +184,12 @@ var cnc = new (function () {
             _offlinemode = flag;
         };
         
+        
         //new code
         _this.simulator = false;
+        
+        _this.issimulation = () => { return _this.simulator; };
+        _this.isoffline = () => {return _offlinemode; };
         
         _this.executeNextCommand = _executeNextCommand;
         
