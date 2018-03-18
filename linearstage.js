@@ -38,11 +38,16 @@ var LinearStage = function (options) {
         _writePin(_this.pins.ms3, stepsize[2]);
     };
 
+    var _adjustdir = (dir) => { return _inverted ? -dir : dir };
+
     var _move = function (mm, res) {
         _executing = true;
         var numsteps = parseInt(res * mm);
         var dir = 1;
         if (numsteps < 0) { numsteps = Math.abs(numsteps); dir = 0; }
+
+        dir = _adjustdir(dir);
+
         _send('exe.pin.' + _this.pins.pwm.toString().padStart(2, '0') + '.0');  //disengage
         _send('exe.pin.' + _this.pins.dir.toString().padStart(2, '0') + '.' + dir);  //dir
         _setstepsize('111');
@@ -73,6 +78,7 @@ var LinearStage = function (options) {
         _writePin(_this.pins.pwm, 0);  //disengage anything currently running on the pin
 
         var dir = $(e).attr('dir');
+        dir = _adjustdir(parseInt(dir));
 
         _writePin(_this.pins.dir, dir);
 
@@ -110,7 +116,7 @@ var LinearStage = function (options) {
         if (typeof mm === 'undefined') {
             mm = 0;
         }
-                
+
         if (cnc.issimulation() || cnc.isoffline()) {
             if (mm == 0) {
                 return '';
@@ -119,6 +125,8 @@ var LinearStage = function (options) {
         }
         else {
             var dir = mm < 0 ? 0 : 1;
+            dir = _adjustdir(parseInt(dir));
+
             var steps = parseInt((parseFloat(_res) / _stepdivisor) * Math.abs(mm)); //adjusted for speed by stepdivisor
 
             return _this.pins.pwm.toString().padStart(2, "0") + '.' +
@@ -126,7 +134,7 @@ var LinearStage = function (options) {
                 dir.toString() + '.' +
                 steps.toString().padStart(7, "0");
         }
-        
+
     };
 
     var _message = function (evt) { if (evt.data == 'ok') { _executing = false; } };
@@ -146,6 +154,7 @@ var LinearStage = function (options) {
 
         _this.engage = function (direction, stepsize) {
             _setstepsize(stepsize);
+            direction = _adjustdir(parseInt(direction));
             _writePin(_this.pins.dir, direction);
             _send('pwm', 'pin', _this.pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
         };
@@ -163,10 +172,10 @@ var LinearStage = function (options) {
         _this.message = _message;
         _this.setspeed = _setspeed;
 
-        _this.isinverted = function() {
+        _this.isinverted = function () {
             return _inverted;
         };
-        
+
         return _this;
     };
 };
