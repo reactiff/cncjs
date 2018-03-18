@@ -1,4 +1,4 @@
-var CncGliphPoint = function (x, y) {
+var CncPoint = function (x, y) {
 
     var _this;
     
