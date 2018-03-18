@@ -8,6 +8,7 @@ var LinearStage = function (options) {
     var _stepsize = '111';
     var _res = options.resolution;
     var _easing = '';
+    var _inverted = options.inverted;
 
     var _executing = false;
 
@@ -162,6 +163,10 @@ var LinearStage = function (options) {
         _this.message = _message;
         _this.setspeed = _setspeed;
 
+        _this.isinverted = function() {
+            return _inverted;
+        };
+        
         return _this;
     };
 };
