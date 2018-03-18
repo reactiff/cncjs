@@ -32,8 +32,8 @@ var CncStroke = function () {
 
         _this.startpos = function () {
             return new Vector(
-                _start.x * _this.parentgliph.strokewidth,
-                _start.y * _this.parentgliph.strokewidth
+                _start.x * _this.parentgliph.strokewidth * _this.parentgliph.scale,
+                _start.y * _this.parentgliph.strokewidth * _this.parentgliph.scale
             );
         };
 
@@ -51,8 +51,8 @@ var CncStroke = function () {
             var lastpoint = _start;
             _points.forEach(function (p) {
                 vectors.push(new Vector(
-                    (p.x - lastpoint.x) * _this.parentgliph.strokewidth,
-                    (p.y - lastpoint.y) * _this.parentgliph.strokewidth
+                    (p.x - lastpoint.x) * _this.parentgliph.strokewidth * _this.parentgliph.scale,
+                    (p.y - lastpoint.y) * _this.parentgliph.strokewidth * _this.parentgliph.scale
                 ));
                 lastpoint = p;
             });
