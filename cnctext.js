@@ -1,10 +1,10 @@
-var CncText = function (text, font, size) {
+var CncText = function (text, font, scale) {
 
     var _this;
 
     var _text = text;
     var _font = font;
-    var _size = size;
+    var _scale = scale;
 
     return new function () {
         _this = this;
@@ -12,7 +12,9 @@ var CncText = function (text, font, size) {
         _this.getglyphs = function () {
             var glyphs = [];
             for (var i = 0; i < _text.length; i++) {
-                glyphs.push(_font.getglyph(_text[i]));
+                var g = _font.getglyph(_text[i]);
+                g.scale = _scale;
+                glyphs.push(g);
             }
             return glyphs;
         };
