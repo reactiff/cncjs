@@ -20,7 +20,7 @@ var DIRECTION = {
 };
 
 /* This file must be included on the main application page, served by the wireless CNC controller module. */
-var cnc = cnc || new (function () {
+var cnc = new (function () {
 
     var _this;
     
@@ -262,11 +262,24 @@ var cnc = cnc || new (function () {
                     return;
                 }
                 
+                cnc.setspeed(SPEED.QUARTER);
+                
                 cnc.connect().then((socket) => {
 
                     //setup a message listener and when a message with interrupt id int.surface is received, resolve
                     cnc.subscribe('int.surface', function () {
                         cnc.unsubscribe('int.surface');
+                        
+                        if (!_this.simulator) {
+                            if(!_this.autosurfaceprobe){
+                                if(!confirm('Surface reached!!!\n\nTO CONTINUE:\n1) Remove the probe from the tool\n2) Power up the tool\n\nBegin cutting?')){
+                                    return;
+                                }
+                            }
+                        }
+                        
+                        cnc.setorigin();
+                        
                         resolve();
                     });
 
@@ -283,7 +296,7 @@ var cnc = cnc || new (function () {
                     var msg = 'm3d.' +
                         _axis.X.getvector(0) + '.' +
                         _axis.Y.getvector(0) + '.' +
-                        _axis.Z.getvector(999);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
+                        _axis.Z.getvector(10);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
                     
                     socket.send(msg);
 
@@ -302,7 +315,7 @@ var cnc = cnc || new (function () {
 
         _this.move = _move;
 
-        _this.cutin = () => { _this.movezto(_this.options.depth); };          //lower the tool to the cut depth, penetrating the surface
+        _this.begincut = () => { _this.movezto(_this.options.depth); };          //lower the tool to the cut depth, penetrating the surface
         _this.movex = (dx) => { _this.move(new Vector(dx, 0, 0)); };
         _this.movey = (dy) => { _this.move(new Vector(0, dy, 0)); };
         _this.movez = (dz) => { _this.move(new Vector(0, 0, dz)); };
@@ -320,7 +333,31 @@ var cnc = cnc || new (function () {
         };
         
         _init();
+        
+        //new code
+        _this.simulator = true;
+        
+        _this.Text = _this.Text || CncText;
+        _this.FontSimple = _this.FontSimple || CncFontSimple;
+        _this.GlyphPoint = _this.GlyphPoint || CncGlyphPoint;
+        _this.Glyph = _this.Glyph || CncGlyph;
+        _this.Stroke = _this.Stroke || CncStroke;
 
+        _this.initialize = () => {
+            //set default options
+            _this.setoptions({
+                depth: 0.15,
+                retract: 0.4,
+                tooldiameter: 0.2
+            });
+
+            return new Promise((resolve, reject) => {
+                _this.findsurface().then(resolve);
+            });
+        };
+        
+        //end new code
+        
         _cncsocket.addEventListener("message", _socketMessageHandler);
 
         return _this;
