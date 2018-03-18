@@ -177,12 +177,12 @@ var CncFontSimple = function () {
 
         char('i',
             new cnc.Stroke(1, 6, 1, 2, 0, 2),
-            new cnc.Stroke(1, 0),
+            new cnc.Stroke(1, 0, 1, 0),
         );
 
         char('j',
             new cnc.Stroke(0,7, 1, 6, 1, 2, 0, 2),
-            new cnc.Stroke(1, 0),
+            new cnc.Stroke(1, 0, 1, 0),
         );
 
         char('k',
@@ -302,7 +302,7 @@ var CncFontSimple = function () {
         //punctuation
 
         char('.',
-            new cnc.Stroke(1, 6)
+            new cnc.Stroke(1, 6, 1, 6)
         );
 
         char(',',
@@ -310,23 +310,23 @@ var CncFontSimple = function () {
         );
 
         char(':',
-            new cnc.Stroke(1, 1),
-            new cnc.Stroke(1, 5)
+            new cnc.Stroke(1, 1, 1, 1),
+            new cnc.Stroke(1, 5, 1, 5)
         );
 
         char(';',
-            new cnc.Stroke(1, 1),
+            new cnc.Stroke(1, 1, 1, 1),
             new cnc.Stroke(1, 5, 0, 6)
         );
 
         char('?',
             new cnc.Stroke(0, 1, 1, 0, 3, 0, 4, 1, 4, 2, 2, 4),
-            new cnc.Stroke(2, 6)
+            new cnc.Stroke(2, 6, 2, 6)
         );
 
         char('!',
             new cnc.Stroke(2, 0, 2, 4),
-            new cnc.Stroke(2, 6)
+            new cnc.Stroke(2, 6, 2, 6)
         );
 
         char('"',
@@ -383,9 +383,9 @@ var CncFontSimple = function () {
         );
 
         char('%',
-            new cnc.Stroke(),
-            new cnc.Stroke(),
-            new cnc.Stroke()
+            new cnc.Stroke(0,0,0,0),
+            new cnc.Stroke(0, 6, 4, 0),
+            new cnc.Stroke(4, 6, 4, 6)
         );
 
         char('^',
