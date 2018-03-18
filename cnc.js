@@ -193,8 +193,7 @@ var cnc = new (function () {
         _this.Glyph = CncGlyph;
         _this.Stroke = CncStroke;
 
-        var _axis = Axes; //defined in cnc_axes.js
-        
+        var _axis = CncInitAxes(); //defined in cnc_axes.js
         CncInitUI(); //defined in cnc_initui.js
         
         _this.initialize = () => {
