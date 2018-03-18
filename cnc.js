@@ -195,6 +195,7 @@ var cnc = new (function () {
 
         var _axis = CncInitAxes(); //defined in cnc_axes.js
         CncInitUI(); //defined in cnc_initui.js
+        _this.executeNextCommand = _executeNextCommand;
         
         _this.initialize = () => {
             //set default options
