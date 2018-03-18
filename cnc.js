@@ -29,9 +29,9 @@ var cnc = new (function () {
     var _move = function (v) {
        
         var msg = 'm3d.' +
-            _axis.X.getvector(v.x) + '.' +
-            _axis.Y.getvector(v.y) + '.' +
-            _axis.Z.getvector(v.z);
+            _this.axis.X.getvector(v.x) + '.' +
+            _this.axis.Y.getvector(v.y) + '.' +
+            _this.axis.Z.getvector(v.z);
         
         var cmd = { number: ++_msgno, message: msg};
         m3dqueue.push(cmd);
@@ -81,8 +81,8 @@ var cnc = new (function () {
         _this.options = {};
 
         _this.setspeed = (speed) => {
-            Object.keys(_axis).forEach((key)=>{
-                _axis[key].setspeed(speed);
+            Object.keys(_this.axis).forEach((key)=>{
+                _this.axis[key].setspeed(speed);
             });
         };
          
@@ -118,7 +118,7 @@ var cnc = new (function () {
                     return;
                 }
                 
-                cnc.setspeed(SPEED.QUARTER);
+                cnc.setspeed(cnc.SPEED.QUARTER);
                 
                 cnc.connect().then((socket) => {
 
@@ -140,7 +140,7 @@ var cnc = new (function () {
                     });
 
                     //set the direction for Z axis to move down its 1
-                    socket.send('exe', 'pin', _axis.Z.pins.dir.toString().padStart(2, '0'), 1);
+                    socket.send('exe', 'pin', _this.axis.Z.pins.dir.toString().padStart(2, '0'), 1);
 
                     //setup pin 7 as input
                     socket.send('mod.pin.07.1'); //set pin 7 mode to input (easy to remember: 1 for [I]nput, 0 for [O]utput)
@@ -150,9 +150,9 @@ var cnc = new (function () {
                     socket.send('int.pin.07.0.surface'); //set up interrupt with id 'surface' for condition when pin 7 is low
 
                     var msg = 'm3d.' +
-                        _axis.X.getvector(0) + '.' +
-                        _axis.Y.getvector(0) + '.' +
-                        _axis.Z.getvector(10);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
+                        _this.axis.X.getvector(0) + '.' +
+                        _this.axis.Y.getvector(0) + '.' +
+                        _this.axis.Z.getvector(10);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
                     
                     socket.send(msg);
 
@@ -191,9 +191,7 @@ var cnc = new (function () {
         
         _this.initialize = () => {
             
-            if (!_this.simulator) {
-                _this.axis = CncInitAxes(); //defined in cnc_axes.js
-            }
+            _this.axis = CncInitAxes(); //defined in cnc_axes.js
             CncInitUI(); //defined in cnc_initui.js
 
             _this.Text = CncText;
