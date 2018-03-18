@@ -28,10 +28,22 @@ var cnc = new (function () {
     var _msgno = 0;
     var _move = function (v) {
        
-        var msg = 'm3d.' +
-            _this.axis.X.getvector(v.x) + '.' +
-            _this.axis.Y.getvector(v.y) + '.' +
-            _this.axis.Z.getvector(v.z);
+        var msg;
+
+        if (cnc.issimulation() || cnc.isoffline()) {
+            msg = 'move: { ' +
+                _this.axis.X.getvector(v.x) + 
+                _this.axis.Y.getvector(v.y) + 
+                _this.axis.Z.getvector(v.z) +
+            ' }';
+        }
+        else {
+            msg = 'm3d.' +
+                _this.axis.X.getvector(v.x) + '.' +
+                _this.axis.Y.getvector(v.y) + '.' +
+                _this.axis.Z.getvector(v.z);    
+        }
+            
         
         var cmd = { number: ++_msgno, message: msg};
         m3dqueue.push(cmd);
@@ -193,17 +205,18 @@ var cnc = new (function () {
         
         _this.executeNextCommand = _executeNextCommand;
         
-        _this.initialize = () => {
-            
-            _this.axis = CncInitAxes(); //defined in cnc_axes.js
-            CncInitUI(); //defined in cnc_initui.js
+        _this.axis = CncInitAxes(); //defined in cnc_axes.js
+        CncInitUI(); //defined in cnc_initui.js
 
-            _this.Text = CncText;
-            _this.FontSimple = CncFontSimple;
-            _this.Point = CncPoint;
-            _this.Glyph = CncGlyph;
-            _this.Stroke = CncStroke;
-            
+        _this.Text = CncText;
+        _this.FontSimple = CncFontSimple;
+        _this.Point = CncPoint;
+        _this.Glyph = CncGlyph;
+        _this.Stroke = CncStroke;
+
+
+        _this.initialize = () => {
+           
             //set default options
             _this.setoptions({
                 depth: 0.15,
