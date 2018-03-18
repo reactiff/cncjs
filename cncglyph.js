@@ -1,14 +1,12 @@
-var CncGliph = function () {
+var CncGlyph = function () {
 
     var _this;
     
-    var _args = [].slice.apply(arguments).slice(0);
-
     var _strokes = [];
-
+    var _args = [].slice.apply(arguments).slice(0);
+    
     return new function () {
         _this = this;
-
 
         _this.char = _args[0];
         _this.strokewidth = 0.2;
