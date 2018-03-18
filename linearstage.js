@@ -38,7 +38,7 @@ var LinearStage = function (options) {
         _writePin(_this.pins.ms3, stepsize[2]);
     };
 
-    var _adjustdir = (dir) => { return _inverted ? -dir : dir };
+    var _adjustdir = (dir) => { return _inverted ? Math.pow(dir-1,2) : dir };
 
     var _move = function (mm, res) {
         _executing = true;
