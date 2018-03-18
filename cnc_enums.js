@@ -7,11 +7,11 @@ var CNCSTEPSIZE = {
 };
 
 var CNCSPEED = { 
-  FULL: { step: _this.STEPSIZE.WHOLE, divisor: 16 }, 
-  HALF: { step: _this.STEPSIZE.HALF, divisor: 8 }, 
-  QUARTER: { step: _this.STEPSIZE.QUARTER, divisor: 4 }, 
-  EIGHTH: { step: _this.STEPSIZE.EIGHTH, divisor: 2 }, 
-  SIXTEENTH: { step: _this.STEPSIZE.SIXTEENTH, divisor: 1 } 
+  FULL: { step: CNCSTEPSIZE.WHOLE, divisor: 16 }, 
+  HALF: { step: CNCSTEPSIZE.HALF, divisor: 8 }, 
+  QUARTER: { step: CNCSTEPSIZE.QUARTER, divisor: 4 }, 
+  EIGHTH: { step: CNCSTEPSIZE.EIGHTH, divisor: 2 }, 
+  SIXTEENTH: { step: CNCSTEPSIZE.SIXTEENTH, divisor: 1 } 
 };
 
 var CNCDIRECTION = { 
