@@ -50,11 +50,11 @@ var CncGlyph = function () {
         };
 
         _this.width = () => {
-            return _this.widthinpoints() * _this.strokewidth;
+            return _this.widthinpoints() * _this.strokewidth * _this.scale;
         };
 
         _this.height = () => {
-            return _this.heightinpoints() * _this.strokewidth;
+            return _this.heightinpoints() * _this.strokewidth * _this.scale;
         }
 
         _this.getstrokes = () => {
