@@ -11,7 +11,7 @@ var CncInitUI = function () {
         if (_cnc_kb_keymap[e.keyCode]) { return; }
         _cnc_kb_keymap[e.keyCode] = 1;
 
-        var stepsize = e.altKey ? cnc.STEPSIZE.SIXTEENTH : STEPSIZE.WHOLE;
+        var stepsize = e.altKey ? cnc.STEPSIZE.SIXTEENTH : cnc.STEPSIZE.WHOLE;
 
         if (e.keyCode == 37) { // left
             cnc.axis.X.engage(cnc.DIRECTION.FORWARD, stepsize);
