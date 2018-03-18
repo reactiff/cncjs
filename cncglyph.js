@@ -13,8 +13,8 @@ var CncGlyph = function () {
         _this.char = _argchar;
         _this.strokewidth = 0.2;
         
-        for (var i = 0; i < strokes.length; i++) {
-            var stroke = strokes[i];
+        for (var i = 0; i < _argstrokes.length; i++) {
+            var stroke = _argstrokes[i];
             stroke.setparent(_this);
             _strokes.push(stroke);
         }
