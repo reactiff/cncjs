@@ -18,7 +18,15 @@ var cnc = new (function () {
             m3dexecuting = false;
             return;
         }
+        
         var cmd = m3dqueue.shift();
+        
+        if(cnc.debug){
+            if(!confirm("Execute next command?\n\n" + cmd.message)){
+                return;
+            }
+        }
+        
         cnc.connect().then(function(socket){
             console.log(cmd.number + ': ' + cmd.message);
             socket.send(cmd.message);
