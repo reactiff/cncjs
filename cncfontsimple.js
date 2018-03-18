@@ -1,4 +1,4 @@
-var CncFontSimple = cnc.FontSimple = function () {
+var CncFontSimple = function () {
 
     var _this;
     
