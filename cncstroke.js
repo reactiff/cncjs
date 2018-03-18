@@ -4,9 +4,9 @@ var CncStroke = function () {
 
     var _args = [].slice.apply(arguments).slice(0);
 
-    if (_args.length % 2 != 0) throw 'Coordinate parity error.  Stroke requires an even numberar of arguments, i.e. x1, y1, x2, y2 et.'
+    if (_args.length % 2 != 0) throw 'Coordinate parity error.  Stroke requires an even numberar of arguments, i.e. x1, y1, x2, y2 et.';
 
-    const _start = new cnc.GliphPoint();
+    const _start = new cnc.Point();
     const _points = [];
 
     return new function () {
@@ -18,12 +18,12 @@ var CncStroke = function () {
                 _start.y = _args[i + 1];
             }
             else {
-                _points.push(new cnc.GliphPoint(_args[i], _args[i+1]));
+                _points.push(new cnc.Point(_args[i], _args[i+1]));
             }
         }
 
-        _this.setparent = (gliph) => {
-            _this.parentgliph = gliph;
+        _this.setparent = (glyph) => {
+            _this.parentglyph = glyph;
         };
 
         _this.startpoint = function () {
@@ -32,8 +32,8 @@ var CncStroke = function () {
 
         _this.startpos = function () {
             return new Vector(
-                _start.x * _this.parentgliph.strokewidth,
-                _start.y * _this.parentgliph.strokewidth
+                _start.x * _this.parentglyph.strokewidth,
+                _start.y * _this.parentglyph.strokewidth
             );
         };
 
@@ -51,8 +51,8 @@ var CncStroke = function () {
             var lastpoint = _start;
             _points.forEach(function (p) {
                 vectors.push(new Vector(
-                    (p.x - lastpoint.x) * _this.parentgliph.strokewidth,
-                    (p.y - lastpoint.y) * _this.parentgliph.strokewidth
+                    (p.x - lastpoint.x) * _this.parentglyph.strokewidth,
+                    (p.y - lastpoint.y) * _this.parentglyph.strokewidth
                 ));
                 lastpoint = p;
             });
