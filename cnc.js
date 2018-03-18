@@ -185,19 +185,23 @@ var cnc = new (function () {
         };
         
         //new code
-        _this.simulator = true;
+        _this.simulator = false;
         
-        _this.Text = CncText;
-        _this.FontSimple = CncFontSimple;
-        _this.Point = CncPoint;
-        _this.Glyph = CncGlyph;
-        _this.Stroke = CncStroke;
-
-        var _axis = CncInitAxes(); //defined in cnc_axes.js
-        CncInitUI(); //defined in cnc_initui.js
         _this.executeNextCommand = _executeNextCommand;
         
         _this.initialize = () => {
+            
+            if (!_this.simulator) {
+                _this.axis = CncInitAxes(); //defined in cnc_axes.js
+            }
+            CncInitUI(); //defined in cnc_initui.js
+
+            _this.Text = CncText;
+            _this.FontSimple = CncFontSimple;
+            _this.Point = CncPoint;
+            _this.Glyph = CncGlyph;
+            _this.Stroke = CncStroke;
+            
             //set default options
             _this.setoptions({
                 depth: 0.15,
@@ -212,7 +216,10 @@ var cnc = new (function () {
         
         //end new code
         
-        _cncsocket.addEventListener("message", CncWSCommMessageHandler);
+        
+        if (!_this.simulator) {
+            _cncsocket.addEventListener("message", CncWSCommMessageHandler);
+        }
         
         return _this;
 
