@@ -15,13 +15,20 @@ var _codeversionmessageparser = function(evt){
       var gittag = t[1];
       $('#gittaginput').val(gittag);
       //git version
-      var files = ['etag.js', 'vector.js', 'linearstage.js', 'rotarystage.js',
+      var files = ['etag.js', 
+                   'vector.js', 
+                   'linearstage.js', 
+                   'rotarystage.js',
                    'shapes.js',
                    'cnctext.js',
                    'cncfontsimple.js',
                    'cncglyph.js',
                    'cncpoint.js',
-                   'cncstroke.js'
+                   'cncstroke.js',
+                   'cnc_enums.js',
+                   'cnc_axes.js',
+                   'cnc_initui.js',
+                   'cnc_wscomm.js'
                   ]; //main file last
       files.forEach(function(filename){
         _loadScript('https://cdn.rawgit.com/nycdude777/cncjs/' + gittag + '/' + filename, true);
