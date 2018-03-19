@@ -37,7 +37,7 @@ var CncDrillingMacro = function(stencil) {
               cnc.findsurface().then(function () {
                 
                 cnc.setspeed(cnc.SPEED.FULL);
-                cnc.retract('(After the surface is found)');
+                cnc.retract(2, '(After the surface is found)');
                 
                 var _holes = holesfordiameter.slice(0);
                 
