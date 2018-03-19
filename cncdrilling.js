@@ -6,45 +6,48 @@ var CncDrillingMacro = function(stencil) {
     var jobsbytoolsize = {};
     drillholes.forEach(function (hole) {
       
-      jobsbytoolsize[hole.diameter] = {execute: null}; //job object with empty execute method
-      
-      //now we assign the method definition
-      jobsbytoolsize[hole.diameter].execute = function () {
+      if(!jobsbytoolsize.hasOwnProperty(hole)){
+        
+        jobsbytoolsize[hole.diameter] = {execute: null}; //job object with empty execute method
+        
+        //now we assign the method definition
+        jobsbytoolsize[hole.diameter].execute = function () {
 
-            var _diameter = hole.diameter;
+              var _diameter = hole.diameter;
 
-            var holesfordiameter = drillholes.filter(h => h.diameter === _diameter);
+              var holesfordiameter = drillholes.filter(h => h.diameter === _diameter);
 
-            //position the tool over the first hole
-            cnc.movexyto(holesfordiameter[0].origin);
-          
-            cnc.retract(50);
+              //position the tool over the first hole
+              cnc.movexyto(holesfordiameter[0].origin);
 
-            if (!confirm('Tool change.\n\nPlease install a ' + _diameter + 'mm drill bit before pressing continue...')) {
-                return;
-            }
+              cnc.retract(50);
 
-            if (!confirm('Z axis calibration.\n\nPlease attach Surface Sensors to the platform and the drill bit before continuing...')) {
-                return;
-            }
+              if (!confirm('Tool change.\n\nPlease install a ' + _diameter + 'mm drill bit before pressing continue...')) {
+                  return;
+              }
 
-            cnc.findsurface().then(function () {
+              if (!confirm('Z axis calibration.\n\nPlease attach Surface Sensors to the platform and the drill bit before continuing...')) {
+                  return;
+              }
 
-                var _holes = holesfordiameter.slice(0);
-                for (var k = 0; k < holesfordiameter.length; k++) {
+              cnc.findsurface().then(function () {
 
-                    cnc.move(holesfordiameter[k].origin);
+                  var _holes = holesfordiameter.slice(0);
+                  for (var k = 0; k < holesfordiameter.length; k++) {
 
-                    cnc.drill({
-                        speed: cnc.SPEED.SIXTEENTH,
-                        depth: 3.2,
-                        retract: 3
-                    });
-                }
-                cnc.milestone('diameter' + _diameter);
-            });
+                      cnc.move(holesfordiameter[k].origin);
 
-        };
+                      cnc.drill({
+                          speed: cnc.SPEED.SIXTEENTH,
+                          depth: 3.2,
+                          retract: 3
+                      });
+                  }
+                  cnc.milestone('diameter' + _diameter);
+              });
+
+          };
+        }
     });
 
     var diameterkeys = Object.keys(jobsbytoolsize);
@@ -59,7 +62,7 @@ var CncDrillingMacro = function(stencil) {
         }
     });
 
-    cnc.milestone('drilling');
+    //cnc.milestone('drilling');
 
     
 };
