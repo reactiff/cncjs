@@ -165,7 +165,7 @@ var cnc = new (function () {
                     return;
                 }
 
-                cnc.setspeed(cnc.SPEED.QUARTER);
+                cnc.setspeed(cnc.SPEED.FULL);
 
                 cnc.connect().then((socket) => {
 
