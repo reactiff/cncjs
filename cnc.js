@@ -14,6 +14,10 @@ var cnc = new (function () {
     var cmdexecuting = false;
 
     var _info;
+    
+    var _interruptOccured = function () {
+        cmdexecuting = false;
+    };
 
     var _executeNextCommand = function () {
         if (cmdqueue.length < 1) {
@@ -313,6 +317,8 @@ var cnc = new (function () {
         _this.milestone = _milestone;
         _this.awaitMilestone = _awaitMilestone;
 
+        _this.interruptOccured = _interruptOccured;
+        
         return _this;
 
     };
