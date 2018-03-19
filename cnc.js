@@ -102,18 +102,7 @@ var cnc = new (function () {
         
         _this.options = {};
 
-        _this.setspeed = (speed) => {
-            Object.keys(_this.axis).forEach((key)=>{
-                _this.axis[key].setspeed(speed);
-            });
-        };
-         
-        _this.setoptions = (options) => {
-            Object.keys(options).forEach(function (key) {
-                _this.options[key] = options[key];
-            });
-        };
-
+      
         _this.pos = {};
         _this.pos.current = new Vector(0,0,0); 
         
@@ -183,7 +172,6 @@ var cnc = new (function () {
             });
         }; //requires contact sensor
                 
-        _this.retract = () => { _this.movezto(-Math.abs(_this.options.retract)); };      //raise the tool
         
         _this.tool = { engage: () => { console.log('tool power on');} };  //tool power on
 
@@ -249,6 +237,48 @@ var cnc = new (function () {
         _this.setinfo = function (info) {
             _info = info;
         };
+        
+        this.Hole = CncHole;
+        _this.Stencil2D = CncStencil2D;
+
+        _this._applyspeed = (speed) => {
+            for (var key in _this.axis) {
+                _this.axis[key].setspeed(speed);
+            }
+        };
+
+        _this.retract = (amount) => {
+            var retractionamount = amount || _this.options.retract;
+            _this.movezto(-Math.abs(retractionamount));
+        };      //raise the tool
+
+        _this.setspeed = (speed) => {
+            _this.options['speed'] = speed;
+            _this._applyspeed(speed);
+        };
+                
+        _this.setoptions = (options) => {
+            for (var key in options) {
+                _this.options[key] = options[key];
+            }
+        };
+
+        var _defaultDrillOptions = { speed: cnc.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2};
+        _this.drill = (options) => {
+            var drilloptions = options || _defaultDrillOptions;
+            _this._applyspeed(drilloptions.speed);
+
+            _this.movezto(drilloptions.depth);
+            _this.retract(drilloptions.retract);
+
+            _this._applyspeed(_this.options.speed);
+
+        };
+
+        _this.movexyto = (coord) => {
+            _this.move(_this.pos.current.diffxy(coord));
+        };
+
         
         return _this;
 
