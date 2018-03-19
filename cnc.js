@@ -16,7 +16,8 @@ var cnc = new (function () {
     var _info;
     
     var _interruptOccured = function () {
-        cmdexecuting = false;
+        cmdexecuting = true;
+        cnc.executeNextCommand();
     };
 
     var _executeNextCommand = function () {
