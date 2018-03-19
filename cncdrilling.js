@@ -17,10 +17,14 @@ var CncDrillingMacro = function(stencil) {
 
               var holesfordiameter = drillholes.filter(h => h.diameter === _diameter);
 
-              //position the tool over the first hole
-              cnc.movexyto(holesfordiameter[0].origin);
-
+          
+              cnc.setspeed(cnc.SPEED.FULL);
+          
               cnc.retract(50);
+
+              //position the tool over the first hole
+              cnc.movexyto(holesfordiameter[0].origin, 'hover first hole');
+              
 
               if (!confirm('Tool change.\n\nPlease install a ' + _diameter + 'mm drill bit before pressing continue...')) {
                   return;
@@ -31,19 +35,27 @@ var CncDrillingMacro = function(stencil) {
               }
 
               cnc.findsurface().then(function () {
+                
+                cnc.setspeed(cnc.SPEED.FULL);
+                cnc.retract();
+                
+                var _holes = holesfordiameter.slice(0);
+                
+                for (var k = 0; k < _holes.length; k++) {
+                    
+                    cnc.movexyto(_holes[k].origin, 'move to hole ' + _holes[k].id);
 
-                  var _holes = holesfordiameter.slice(0);
-                  for (var k = 0; k < holesfordiameter.length; k++) {
-
-                      cnc.move(holesfordiameter[k].origin);
-
-                      cnc.drill({
-                          speed: cnc.SPEED.SIXTEENTH,
-                          depth: 3.2,
-                          retract: 3
-                      });
-                  }
-                  cnc.milestone('diameter' + _diameter);
+                    cnc.drill({
+                        speed: cnc.SPEED.SIXTEENTH,
+                        depth: 3.2,
+                        retract: 2
+                    }, '');
+                  
+                    cnc.retract();
+                }
+                
+                cnc.milestone('diameter' + _diameter);
+                
               });
 
           };
