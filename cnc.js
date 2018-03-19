@@ -37,7 +37,7 @@ var cnc = new (function () {
 
     var _msgno = 0;
 
-    var_enqueuecommand = function (msg) {
+    var _enqueuemessage = function (msg) {
         var cmd = { number: ++_msgno, message: msg, info: _info };
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
@@ -290,6 +290,7 @@ var cnc = new (function () {
             _this.move(_this.pos.current.diffxy(coord));
         };
 
+        _this.enqueue = _enqueuemessage;
 
         return _this;
 
