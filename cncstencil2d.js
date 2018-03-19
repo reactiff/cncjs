@@ -69,7 +69,7 @@ var CncStencil2D = function () {
         _this.get = (id) => {
             var item;
             _holes.forEach(function (hole) {
-                if (h.id === id){
+                if (hole.id === id){
                     item = hole;
                     return false;
                 }
