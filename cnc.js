@@ -63,7 +63,7 @@ var cnc = new (function () {
         });
     };
 
-    var _move = function (v) {
+    var _move = function (v, annot) {
 
         var msg;
 
@@ -81,10 +81,10 @@ var cnc = new (function () {
                 _this.axis.Z.getvector(v.z);
         }
         
-        var cmd = { number: ++_msgno, message: msg, info: _info };
+        var cmd = { number: ++_msgno, message: msg, info: annot };
         
         if (_offlinemode) {
-            $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
+            $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message), $e('span.message.annot', cmd.info)));
         }
         else {
             cmdqueue.push(cmd);
@@ -151,6 +151,10 @@ var cnc = new (function () {
             _drawingcontext.scale(0.1, 0.1);
         };
 
+        _this.createinterrupt = function(id, pin, state){
+            socket.send('int.pin.'+pin.toString().padStart(2, "0")+'.'+state+'.'+id); 
+        };
+        
         _this.findsurface = () => {
 
             return new Promise((resolve, reject) => {
@@ -189,16 +193,12 @@ var cnc = new (function () {
 
                     //setup an interrupt for condition when pin 7 becomes LOW, this will send a message 'int.surface'
                     //NOTE: Interrupt is automatically removed after condition is met, no need to remove it explicitly
-                    socket.send('int.pin.07.0.surface'); //set up interrupt with id 'surface' for condition when pin 7 is low
+                    
+                    cnc.createinterrupt(7, 0, 'surface');
+                    
 
-                    var msg = 'm3d.' +
-                        _this.axis.X.getvector(0) + '.' +
-                        _this.axis.Y.getvector(0) + '.' +
-                        _this.axis.Z.getvector(100);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
-
-                    socket.send(msg);
-
-
+                    cnc.movez(100, 'find surface');
+                    
                 });
             });
         }; //requires contact sensor
@@ -208,14 +208,15 @@ var cnc = new (function () {
 
         _this.move = _move;
 
-        _this.begincut = () => { _this.movezto(_this.options.depth); };          //lower the tool to the cut depth, penetrating the surface
-        _this.movex = (dx) => { _this.move(new Vector(dx, 0, 0)); };
-        _this.movey = (dy) => { _this.move(new Vector(0, dy, 0)); };
-        _this.movez = (dz) => { _this.move(new Vector(0, 0, dz)); };
-        _this.moveto = (pos) => { _this.move(_this.pos.current.diff(pos)); };
-        _this.movexto = (coord) => { _this.move(_this.pos.current.diffx(coord)); };
-        _this.moveyto = (coord) => { _this.move(_this.pos.current.diffy(coord)); };
-        _this.movezto = (coord) => { _this.move(_this.pos.current.diffz(coord)); };
+        _this.begincut = (annot) => { _this.movezto(_this.options.depth, annot); };          //lower the tool to the cut depth, penetrating the surface
+        _this.movex = (dx, annot) => { _this.move(new Vector(dx, 0, 0), annot); };
+        _this.movey = (dy, annot) => { _this.move(new Vector(0, dy, 0), annot); };
+        _this.movez = (dz, annot) => { _this.move(new Vector(0, 0, dz), annot); };
+        _this.moveto = (pos, annot) => { _this.move(_this.pos.current.diff(pos), annot); };
+        _this.movexto = (coord, annot) => { _this.move(_this.pos.current.diffx(coord), annot); };
+        _this.moveyto = (coord, annot) => { _this.move(_this.pos.current.diffy(coord), annot); };
+        _this.movezto = (coord, annot) => { _this.move(_this.pos.current.diffz(coord), annot); };
+        
         _this.savepos = (id, pos) => { _this.pos[id] = pos.copy(); };
 
         _this.subscribe = (id, cb) => { _subscriptions[id] = cb; };
@@ -278,9 +279,9 @@ var cnc = new (function () {
             }
         };
 
-        _this.retract = (amount) => {
+        _this.retract = (amount, annot) => {
             var retractionamount = amount || _this.options.retract;
-            _this.movezto(-Math.abs(retractionamount));
+            _this.movezto(-Math.abs(retractionamount), annot);
         };      //raise the tool
 
         _this.setspeed = (speed) => {
@@ -310,8 +311,8 @@ var cnc = new (function () {
 
         };
 
-        _this.movexyto = (coord) => {
-            _this.move(_this.pos.current.diffxy(coord));
+        _this.movexyto = (coord, annot) => {
+            _this.move(_this.pos.current.diffxy(coord), annot);
         };
 
         _this.milestone = _milestone;
