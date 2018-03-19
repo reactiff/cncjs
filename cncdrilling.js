@@ -13,6 +13,8 @@ var CncDrillingMacro = function(stencil) {
 
             //position the tool over the first hole
             cnc.movexyto(holesfordiameter[0].origin);
+          
+            cnc.retract(50);
 
             if (!confirm('Tool change.\n\nPlease install a ' + _diameter + 'mm drill bit before pressing continue...')) {
                 return;
