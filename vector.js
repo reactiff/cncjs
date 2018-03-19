@@ -90,6 +90,7 @@ var Vector = function (x, y, z) {
         _this.diffx = _diffx;
         _this.diffy = _diffy;
         _this.diffz = _diffz;
+        _this.diffxy = _diffxy;
 
         return _this;
     };
