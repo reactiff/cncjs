@@ -42,7 +42,7 @@ var cnc = new (function () {
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
-        if (!m3dexecuting) {
+        if (!cmdexecuting) {
             cmdqueue.push(cmd);
             cmdexecuting = true;
             _executeNextCommand();
@@ -82,7 +82,7 @@ var cnc = new (function () {
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
-        else if (!m3dexecuting) {
+        else if (!cmdexecuting) {
             cmdqueue.push(cmd);
             cmdexecuting = true;
             _executeNextCommand();
