@@ -139,6 +139,9 @@ var LinearStage = function (options) {
 
     var _message = function (evt) { if (evt.data == 'ok') { _executing = false; } };
 
+    var _setstepdivisor = function(divisor) {
+        _stepdivisor = divisor;
+    };
 
     return new function () {
 
@@ -176,6 +179,8 @@ var LinearStage = function (options) {
             return _inverted;
         };
 
+        _this.setstepdivisor = _setstepdivisor;
+        
         return _this;
     };
 };
