@@ -295,7 +295,7 @@ var cnc = new (function () {
                     _this.axis[key].pins.ms3.toString().padStart(2, "0") + '.' +
                     speed;
 
-                _this.enqueue(cmd)
+                _enqueue(cmd)
 
             }
         };
