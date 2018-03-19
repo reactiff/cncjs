@@ -30,7 +30,8 @@ var _codeversionmessageparser = function(evt){
                    'cnc_enums.js',
                    'cnc_axes.js',
                    'cnc_initui.js',
-                   'cnc_wscomm.js'
+                   'cnc_wscomm.js',
+                   'cncdrilling.js'
                   ]; //main file last
       files.forEach(function(filename){
         _loadScript('https://cdn.rawgit.com/nycdude777/cncjs/' + gittag + '/' + filename, true);
