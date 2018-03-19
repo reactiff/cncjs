@@ -319,6 +319,9 @@ var cnc = new (function () {
 
         _this.interruptOccured = _interruptOccured;
         
+        _this.getcommandqueuelength = function(){
+            return cmdqueue.length;
+        };
         return _this;
 
     };
