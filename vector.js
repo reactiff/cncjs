@@ -6,9 +6,6 @@ var Vector = function (x, y, z) {
     Accepts a vector object and passess it through as a return object, adjusting the vector position
     */
     var _add = function (delta) {
-        if (!delta.hasOwnProperty('x') || !delta.hasOwnProperty('y') || !delta.hasOwnProperty('z')) {
-            throw 'Delta parameter must be a vector or object defining x, y and z values';
-        }
         if (typeof delta.x !== 'undefined') _this.x += delta.x;
         if (typeof delta.y !== 'undefined') _this.y += delta.y;
         if (typeof delta.z !== 'undefined') _this.z += delta.z;
@@ -16,9 +13,6 @@ var Vector = function (x, y, z) {
     };
 
     var _subtract = function (delta) {
-        if (!delta.hasOwnProperty('x') || !delta.hasOwnProperty('y') || !delta.hasOwnProperty('z')) {
-            throw 'Delta parameter must be a vector or object defining x, y and z values.  The original vector is modified, and the delta is returned.';
-        }
         if (typeof delta.x !== 'undefined') _this.x -= delta.x;
         if (typeof delta.y !== 'undefined') _this.y -= delta.y;
         if (typeof delta.z !== 'undefined') _this.z -= delta.z;
@@ -26,9 +20,6 @@ var Vector = function (x, y, z) {
     };
 
     var _diff = (v2) => {
-        if (!v2.hasOwnProperty('x') || !v2.hasOwnProperty('y') || !v2.hasOwnProperty('z')) {
-            throw 'The parameter must be a vector or object defining x, y and z values.  The difference is measured by subtracting the vectory from the supplied parameter.  The difference is returned as new vector.  The original vector remains unmodified';
-        }
         return new Vector(
             typeof v2.x !== 'undefined' ? v2.x - _this.x : 0,
             typeof v2.y !== 'undefined' ? v2.y - _this.y : 0,
