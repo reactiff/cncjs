@@ -274,7 +274,7 @@ var cnc = new (function () {
 
         _this.retract = (amount, annot) => {
             var retractionamount = amount || _this.options.retract;
-            _this.movezto(-Math.abs(retractionamount), annot);
+            _this.movezto(-Math.abs(retractionamount), 'Retract ' + retractionamount + 'mm above surface. ' + annot);
         };      //raise the tool
 
         _this.setspeed = (speed) => {
