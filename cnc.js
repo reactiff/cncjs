@@ -59,7 +59,7 @@ var cnc = new (function () {
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
-        _enqueue();
+        _enqueue(cmd);
     };
 
     var _awaitMilestone = function (id) {
