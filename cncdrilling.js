@@ -30,6 +30,7 @@ var CncDrillingMacro = function(stencil) {
 
             cnc.findsurface().then(function () {
 
+                var _holes = holesfordiameter.slice(0);
                 for (var k = 0; k < holesfordiameter.length; k++) {
 
                     cnc.move(holesfordiameter[k].origin);
