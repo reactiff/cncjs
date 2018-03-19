@@ -49,7 +49,7 @@ var CncDrillingMacro = function(stencil) {
                         speed: cnc.SPEED.SIXTEENTH,
                         depth: 3.2,
                         retract: 2
-                    }, 'Drill 3.2mm deel');
+                    }, 'Drill 3.2mm deep');
                   
                     cnc.retract('(after drilling)');
                 }
