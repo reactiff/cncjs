@@ -96,7 +96,7 @@ var cnc = new (function () {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message), $e('span.message.annot', cmd.info)));
         }
         else {
-            _enqueue();
+            _enqueue(cmd);
         }
 
         var _newpos = _this.pos.current.copy();
