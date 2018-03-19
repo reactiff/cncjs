@@ -238,7 +238,7 @@ var cnc = new (function () {
             _info = info;
         };
         
-        this.Hole = CncHole;
+        _this.Hole = CncHole;
         _this.Stencil2D = CncStencil2D;
 
         _this._applyspeed = (speed) => {
