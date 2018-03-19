@@ -203,7 +203,7 @@ var cnc = new (function () {
                     _enqueue(cmd3); //set up interrupt with id 'surface' for condition when pin 7 is low
 
                     var cmd4 = { number: ++_msgno, message: null, info: 'Find surface' };
-                    cmd4.msg = 'm3d.' +
+                    cmd4.message = 'm3d.' +
                         _this.axis.X.getvector(0) + '.' +
                         _this.axis.Y.getvector(0) + '.' +
                         _this.axis.Z.getvector(100);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
