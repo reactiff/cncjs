@@ -8,7 +8,7 @@ var CncWSCommMessageHandler = function(evt, flags, number) {
   
   cnc.notify(evt.data);
   
-  if (evt.data === 'm3d.ok') {
+  if (evt.data === 'cmd.ok') {
       cnc.executeNextCommand();
   }
   
