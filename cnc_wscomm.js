@@ -1,5 +1,5 @@
 var CncWSCommMessageHandler = function(evt, flags, number) {
-  console.log('[MSG] ' + evt.data);
+  console.log('(machine)--->[MSG]: ' + evt.data);
   cnc.notify(evt.data);
   if (evt.data == 'm3d.ok') {
       cnc.executeNextCommand();
