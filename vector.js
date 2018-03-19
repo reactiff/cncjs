@@ -41,6 +41,8 @@ var Vector = function (x, y, z) {
     var _diffy = (y) => { return new Vector(0, y - _this.y, 0); };
     var _diffz = (z) => { return new Vector(0, 0, z - _this.z); };
 
+    var _diffxy = (x) => { return new Vector(x - _this.x, y - _this.y, 0); };
+
     var _copy = () => { return new Vector(_this.x, _this.y, _this.z); };
 
     /*
