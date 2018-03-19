@@ -328,8 +328,9 @@ var cnc = new (function () {
             if (!drilloptions.retract) { drilloptions.retract = _defaultDrillOptions.retract; }
 
             _this._applyspeed(drilloptions.speed);
-
             _this.movezto(drilloptions.depth, annot);
+            
+            _this._applyspeed(cnc.SPEED.FULL);            
             _this.retract(drilloptions.retract, 'retract drill bit');
 
             _this._applyspeed(_this.options.speed);
