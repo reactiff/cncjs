@@ -6,7 +6,7 @@ var CncHole = function (id, diameter, x, y) {
         _this = this;
 
         _this.id = id;
-        _this.startpoint = new cnc.Point(x, y);
+        _this.origin = new cnc.Point(x, y);
         
         _this.setparent = (stencil) => {
             _this.parentstencil = stencil;
