@@ -187,18 +187,28 @@ var cnc = new (function () {
                     });
 
                     //set the direction for Z axis to move down its 1
-                    socket.send('exe', 'pin', _this.axis.Z.pins.dir.toString().padStart(2, '0'), 1);
-
+                    var cmd1 = { number: ++_msgno, message: null, info: 'Set Z dir down' };
+                    cmd1.message = 'exe.pin.' + _this.axis.Z.pins.dir.toString().padStart(2, '0') + '1';
+                    _enqueue(cmd1);
+                    
                     //setup pin 7 as input
-                    socket.send('mod.pin.07.1'); //set pin 7 mode to input (easy to remember: 1 for [I]nput, 0 for [O]utput)
+                    var cmd2 = { number: ++_msgno, message: null, info: 'Set pin 7 as input' };
+                    cmd2.message = 'mod.pin.07.1';
+                    _enqueue(cmd2); //set pin 7 mode to input (easy to remember: 1 for [I]nput, 0 for [O]utput)
 
                     //setup an interrupt for condition when pin 7 becomes LOW, this will send a message 'int.surface'
                     //NOTE: Interrupt is automatically removed after condition is met, no need to remove it explicitly
-                    
-                    socket.send('int.pin.07.0.surface'); 
-                    
+                    var cmd3 = { number: ++_msgno, message: null, info: 'Setup interrupt' };
+                    cmd3.message = 'int.pin.07.0.surface';
+                    _enqueue(cmd3); //set up interrupt with id 'surface' for condition when pin 7 is low
 
-                    cnc.movez(100, 'find surface');
+                    var cmd4 = { number: ++_msgno, message: null, info: 'Find surface' };
+                    cmd4.msg = 'm3d.' +
+                        _this.axis.X.getvector(0) + '.' +
+                        _this.axis.Y.getvector(0) + '.' +
+                        _this.axis.Z.getvector(100);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
+                                        
+                    _enqueue(cmd4);
                     
                 });
             });
