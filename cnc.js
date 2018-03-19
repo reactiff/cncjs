@@ -287,6 +287,10 @@ var cnc = new (function () {
         _this._applyspeed = (speed) => {
             for (var key in _this.axis) {
 
+                _this.axis.X.setstepdivisor(speed.divisor);
+                _this.axis.Y.setstepdivisor(speed.divisor);
+                _this.axis.Z.setstepdivisor(speed.divisor);
+                
                 var cmd = { number: ++_msgno, message: null, info: 'Set ' + key + ' step size'};
 
                 cmd.message = 'mot.stp.' +
@@ -295,7 +299,7 @@ var cnc = new (function () {
                     _this.axis[key].pins.ms3.toString().padStart(2, "0") + '.' +
                     speed.step;
 
-                _enqueue(cmd)
+                _enqueue(cmd);
 
             }
         };
