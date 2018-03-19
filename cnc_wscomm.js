@@ -2,6 +2,7 @@ var CncWSCommMessageHandler = function(evt, flags, number) {
   console.log('(machine)--->[MSG]: ' + evt.data);
   
   if (evt.data.substring(0,4) === 'int.') {
+      console.log('queue size: ' + cnc.getcommandqueuelength());
       cnc.interruptOccured();
   }
   
