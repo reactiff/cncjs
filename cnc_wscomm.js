@@ -15,6 +15,10 @@ var CncWSCommMessageHandler = function(evt, flags, number) {
 };
     
 var CncAwaitWSConnection = function(resolve){
+    if(!_cncsocket){
+      _createWebSocket();
+    }
+  
     if(_cncsocket.readyState===1){
         resolve(_cncsocket);
         return;
