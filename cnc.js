@@ -52,6 +52,7 @@ var cnc = new (function () {
     var _awaitMilestone = function (id) {
         return new Promise((resolve, reject) => {
             cnc.subscribe('milestone:' + id, function () {
+                if(cnc.verbose) {alert("Milestone reached: " + id);}
                 cnc.unsubscribe('milestone:' + id);
                 resolve();
             });
