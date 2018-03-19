@@ -150,10 +150,6 @@ var cnc = new (function () {
             var _drawingcontext = _canvas.getContext("2d");
             _drawingcontext.scale(0.1, 0.1);
         };
-
-        _this.createinterrupt = function(id, pin, state){
-            socket.send('int.pin.'+pin.toString().padStart(2, "0")+'.'+state+'.'+id); 
-        };
         
         _this.findsurface = () => {
 
@@ -194,7 +190,7 @@ var cnc = new (function () {
                     //setup an interrupt for condition when pin 7 becomes LOW, this will send a message 'int.surface'
                     //NOTE: Interrupt is automatically removed after condition is met, no need to remove it explicitly
                     
-                    cnc.createinterrupt(7, 0, 'surface');
+                    socket.send('int.pin.07.0.surface'); 
                     
 
                     cnc.movez(100, 'find surface');
