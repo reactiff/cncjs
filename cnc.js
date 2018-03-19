@@ -296,7 +296,7 @@ var cnc = new (function () {
         };
 
         var _defaultDrillOptions = { speed: _this.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2 };
-        _this.drill = (options) => {
+        _this.drill = (options, annot) => {
             var drilloptions = options || _defaultDrillOptions;
             if (!drilloptions.speed) { drilloptions.speed = _defaultDrillOptions.speed; }
             if (!drilloptions.depth) { drilloptions.depth = _defaultDrillOptions.depth; }
@@ -304,8 +304,8 @@ var cnc = new (function () {
 
             _this._applyspeed(drilloptions.speed);
 
-            _this.movezto(drilloptions.depth);
-            _this.retract(drilloptions.retract);
+            _this.movezto(drilloptions.depth, annot);
+            _this.retract(drilloptions.retract, 'retract drill bit');
 
             _this._applyspeed(_this.options.speed);
 
