@@ -82,10 +82,12 @@ var cnc = new (function () {
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
-        else if (!cmdexecuting) {
+        else {
             cmdqueue.push(cmd);
-            cmdexecuting = true;
-            _executeNextCommand();
+            if (!cmdexecuting) {
+                cmdexecuting = true;
+                _executeNextCommand();
+            }
         }
 
         var _newpos = _this.pos.current.copy();
