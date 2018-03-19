@@ -3,66 +3,77 @@ var cnc = new (function () {
 
     var _this;
     var _offlinemode = false;
-    
+
     var _canvas;
     var _drawingcontext;
-    
+
     const _subscriptions = {};
     const _keymap = {};
-    
-    const m3dqueue = [];
-    var m3dexecuting = false;
-          
+
+    const cmdqueue = [];
+    var cmdexecuting = false;
+
     var _info;
-    
+
     var _executeNextCommand = function () {
-        if (m3dqueue.length < 1) {
-            m3dexecuting = false;
+        if (cmdqueue.length < 1) {
+            cmdexecuting = false;
             return;
         }
-        
-        var cmd = m3dqueue.shift();
-        
-        if(cnc.debug){
-            if(!confirm("Execute next command?\n\n" + cmd.message)){
+
+        var cmd = cmdqueue.shift();
+
+        if (cnc.debug) {
+            if (!confirm("Execute next command?\n\n" + cmd.message)) {
                 return;
             }
         }
-        
-        cnc.connect().then(function(socket){
+
+        cnc.connect().then(function (socket) {
             console.log(cmd.number + ' ' + cmd.info + ': ' + cmd.message);
             socket.send(cmd.message);
         });
     };
 
     var _msgno = 0;
+
+    var_enqueuecommand = function (msg) {
+        var cmd = { number: ++_msgno, message: msg, info: _info };
+        if (_offlinemode) {
+            $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
+        }
+        if (!m3dexecuting) {
+            cmdqueue.push(cmd);
+            cmdexecuting = true;
+            _executeNextCommand();
+        }
+    }
     var _move = function (v) {
-       
+
         var msg;
 
         if (cnc.issimulation() || cnc.isoffline()) {
             msg = _info + ': { ' +
-                _this.axis.X.getvector(v.x) + 
-                _this.axis.Y.getvector(v.y) + 
+                _this.axis.X.getvector(v.x) +
+                _this.axis.Y.getvector(v.y) +
                 _this.axis.Z.getvector(v.z) +
-            ' }';
+                ' }';
         }
         else {
             msg = 'm3d.' +
                 _this.axis.X.getvector(v.x) + '.' +
                 _this.axis.Y.getvector(v.y) + '.' +
-                _this.axis.Z.getvector(v.z);    
+                _this.axis.Z.getvector(v.z);
         }
-            
         
-        var cmd = { number: ++_msgno, message: msg, info: _info};
-        m3dqueue.push(cmd);
-
-        if(_offlinemode){
-            $('body').append($e('div.command', $e('span.number',cmd.number), $e('span.message',cmd.message) ));
+        var cmd = { number: ++_msgno, message: msg, info: _info };
+        
+        if (_offlinemode) {
+            $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
         else if (!m3dexecuting) {
-            m3dexecuting = true;
+            cmdqueue.push(cmd);
+            cmdexecuting = true;
             _executeNextCommand();
         }
 
@@ -80,9 +91,9 @@ var cnc = new (function () {
         }
         _this.pos.current = _newpos;
     };
-    
-    
-    
+
+
+
     return new function () {
 
         _this = this; //save the instance reference because 'this' will always change
@@ -91,23 +102,23 @@ var cnc = new (function () {
         _this.STEPSIZE = CNCSTEPSIZE;
         _this.SPEED = CNCSPEED;
         _this.DIRECTION = CNCDIRECTION;
-        
+
         _this.notify = (msgdata) => {
-            if(_subscriptions[msgdata]){
+            if (_subscriptions[msgdata]) {
                 _subscriptions[msgdata]();
             }
         };
-        
+
         _this.connect = CncWSConnect;
-        
+
         _this.options = {};
 
-      
+
         _this.pos = {};
-        _this.pos.current = new Vector(0,0,0); 
-        
-        _this.setorigin = () => { _this.pos.current = new Vector(0,0,0); };
-        
+        _this.pos.current = new Vector(0, 0, 0);
+
+        _this.setorigin = () => { _this.pos.current = new Vector(0, 0, 0); };
+
         var _drawingcontext;
         _this.setcanvas = (canvas) => {
             _canvas = canvas;
@@ -119,34 +130,34 @@ var cnc = new (function () {
             var _drawingcontext = _canvas.getContext("2d");
             _drawingcontext.scale(0.1, 0.1);
         };
-        
+
         _this.findsurface = () => {
 
             return new Promise((resolve, reject) => {
-    
-                if(_offlinemode){
+
+                if (_offlinemode) {
                     resolve();
                     return;
                 }
-                
+
                 cnc.setspeed(cnc.SPEED.QUARTER);
-                
+
                 cnc.connect().then((socket) => {
 
                     //setup a message listener and when a message with interrupt id int.surface is received, resolve
                     cnc.subscribe('int.surface', function () {
                         cnc.unsubscribe('int.surface');
-                        
+
                         if (!_this.simulator) {
-                            if(!_this.autosurfaceprobe){
-                                if(!confirm('Surface reached!!!\n\nTO CONTINUE:\n1) Remove the probe from the tool\n2) Power up the tool\n\nBegin cutting?')){
+                            if (!_this.autosurfaceprobe) {
+                                if (!confirm('Surface reached!!!\n\nTO CONTINUE:\n1) Remove the probe from the tool\n2) Power up the tool\n\nBegin cutting?')) {
                                     return;
                                 }
                             }
                         }
-                        
+
                         cnc.setorigin();
-                        
+
                         resolve();
                     });
 
@@ -164,16 +175,16 @@ var cnc = new (function () {
                         _this.axis.X.getvector(0) + '.' +
                         _this.axis.Y.getvector(0) + '.' +
                         _this.axis.Z.getvector(10);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
-                    
+
                     socket.send(msg);
 
 
                 });
             });
         }; //requires contact sensor
-                
-        
-        _this.tool = { engage: () => { console.log('tool power on');} };  //tool power on
+
+
+        _this.tool = { engage: () => { console.log('tool power on'); } };  //tool power on
 
         _this.move = _move;
 
@@ -186,23 +197,23 @@ var cnc = new (function () {
         _this.moveyto = (coord) => { _this.move(_this.pos.current.diffy(coord)); };
         _this.movezto = (coord) => { _this.move(_this.pos.current.diffz(coord)); };
         _this.savepos = (id, pos) => { _this.pos[id] = pos.copy(); };
-        
+
         _this.subscribe = (id, cb) => { _subscriptions[id] = cb; };
         _this.unsubscribe = (id) => { _subscriptions[id] = null; };
-        
+
         _this.setoffline = (flag) => {
             _offlinemode = flag;
         };
-        
-        
+
+
         //new code
         _this.simulator = false;
-        
+
         _this.issimulation = () => { return _this.simulator; };
-        _this.isoffline = () => {return _offlinemode; };
-        
+        _this.isoffline = () => { return _offlinemode; };
+
         _this.executeNextCommand = _executeNextCommand;
-        
+
         _this.axis = CncInitAxes(); //defined in cnc_axes.js
         CncInitUI(); //defined in cnc_initui.js
 
@@ -214,7 +225,7 @@ var cnc = new (function () {
 
 
         _this.initialize = () => {
-           
+
             //set default options
             _this.setoptions({
                 depth: 0.15,
@@ -226,18 +237,18 @@ var cnc = new (function () {
                 _this.findsurface().then(resolve);
             });
         };
-        
+
         //end new code
-        
-        
+
+
         if (!_this.simulator) {
             _cncsocket.addEventListener("message", CncWSCommMessageHandler);
         }
-        
+
         _this.setinfo = function (info) {
             _info = info;
         };
-        
+
         _this.Hole = CncHole;
         _this.Stencil2D = CncStencil2D;
 
@@ -256,14 +267,14 @@ var cnc = new (function () {
             _this.options['speed'] = speed;
             _this._applyspeed(speed);
         };
-                
+
         _this.setoptions = (options) => {
             for (var key in options) {
                 _this.options[key] = options[key];
             }
         };
 
-        var _defaultDrillOptions = { speed: _this.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2};
+        var _defaultDrillOptions = { speed: _this.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2 };
         _this.drill = (options) => {
             var drilloptions = options || _defaultDrillOptions;
             _this._applyspeed(drilloptions.speed);
@@ -279,12 +290,8 @@ var cnc = new (function () {
             _this.move(_this.pos.current.diffxy(coord));
         };
 
-        
+
         return _this;
 
     };
 })();
-
-
-
-
