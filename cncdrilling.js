@@ -5,7 +5,11 @@ var CncDrillingMacro = function(stencil) {
     //1. foreach diameter
     var jobsbytoolsize = {};
     drillholes.forEach(function (hole) {
-        jobsbytoolsize[hole.diameter].execute = function () {
+      
+      jobsbytoolsize[hole.diameter] = {execute: null}; //job object with empty execute method
+      
+      //now we assign the method definition
+      jobsbytoolsize[hole.diameter].execute = function () {
 
             var _diameter = hole.diameter;
 
