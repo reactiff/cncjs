@@ -25,6 +25,8 @@ var _codeversionmessageparser = function(evt){
                    'cncglyph.js',
                    'cncpoint.js',
                    'cncstroke.js',
+                   'cnchole.js',
+                   'cncstencil2d.js',
                    'cnc_enums.js',
                    'cnc_axes.js',
                    'cnc_initui.js',
