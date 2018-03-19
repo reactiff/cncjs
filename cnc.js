@@ -15,16 +15,16 @@ var cnc = new (function () {
 
     var _info;
     
-    var _interruptOccured = function () {
-        cmdexecuting = true;
-        cnc.executeNextCommand();
-    };
-
+     var _msgno = 0;
+      
     var _executeNextCommand = function () {
+
         if (cmdqueue.length < 1) {
             cmdexecuting = false;
             return;
         }
+
+        cmdexecuting = true;
 
         var cmd = cmdqueue.shift();
 
@@ -38,17 +38,28 @@ var cnc = new (function () {
             console.log(cmd.number + ' ' + cmd.info + ': ' + cmd.message);
             socket.send(cmd.message);
         });
+
     };
 
-    var _msgno = 0;
+    var _interruptOccured = function () {
+        cmdexecuting = false;
+        _executeNextCommand();
+    };
+    
+
+    var _enqueue = function (cmd) {
+        cmdqueue.push(cmd);
+        if (!cmdexecuting) {
+            _executeNextCommand();
+        }
+    };
 
     var _milestone = function (id) {
         var cmd = { number: ++_msgno, message: "msg.mls." + id, info: "Milestone reached" };
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
-        cmdqueue.push(cmd);
-        _executeNextCommand();
+        _enqueue();
     };
 
     var _awaitMilestone = function (id) {
@@ -85,11 +96,7 @@ var cnc = new (function () {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message), $e('span.message.annot', cmd.info)));
         }
         else {
-            cmdqueue.push(cmd);
-            if (!cmdexecuting) {
-                cmdexecuting = true;
-                _executeNextCommand();
-            }
+            _enqueue();
         }
 
         var _newpos = _this.pos.current.copy();
@@ -269,7 +276,17 @@ var cnc = new (function () {
 
         _this._applyspeed = (speed) => {
             for (var key in _this.axis) {
-                _this.axis[key].setspeed(speed);
+
+                var cmd = { number: ++_msgno, message: null, info: 'Set ' + key + ' step size'};
+
+                cmd.message = 'mot.stp.' +
+                    _this.axis[key].pins.ms1.toString().padStart(2, "0") + '.' +
+                    _this.axis[key].pins.ms2.toString().padStart(2, "0") + '.' +
+                    _this.axis[key].pins.ms3.toString().padStart(2, "0") + '.' +
+                    speed;
+
+                _this.enqueue(cmd)
+
             }
         };
 
