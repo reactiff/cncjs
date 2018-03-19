@@ -293,7 +293,7 @@ var cnc = new (function () {
                     _this.axis[key].pins.ms1.toString().padStart(2, "0") + '.' +
                     _this.axis[key].pins.ms2.toString().padStart(2, "0") + '.' +
                     _this.axis[key].pins.ms3.toString().padStart(2, "0") + '.' +
-                    speed;
+                    speed.step;
 
                 _enqueue(cmd)
 
