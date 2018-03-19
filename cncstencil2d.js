@@ -9,6 +9,8 @@ var CncStencil2D = function () {
         _this = this;
         
         _this.strokewidth = 0.2;
+        _this.scale = 1;
+        
                 
         _this.widthinpoints = () => {
             if (_this.hasOwnProperty('customwidthinpoints')) {
