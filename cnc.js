@@ -263,7 +263,7 @@ var cnc = new (function () {
             }
         };
 
-        var _defaultDrillOptions = { speed: cnc.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2};
+        var _defaultDrillOptions = { speed: _this.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2};
         _this.drill = (options) => {
             var drilloptions = options || _defaultDrillOptions;
             _this._applyspeed(drilloptions.speed);
