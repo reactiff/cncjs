@@ -23,7 +23,7 @@ var CncDrillingMacro = function(stencil) {
               cnc.retract(50);
 
               //position the tool over the first hole
-              cnc.movexyto(holesfordiameter[0].origin, 'hover first hole');
+              cnc.movexyto(holesfordiameter[0].origin, 'Hover first hole');
               
 
               if (!confirm('Tool change.\n\nPlease install a ' + _diameter + 'mm drill bit before pressing continue...')) {
@@ -37,21 +37,21 @@ var CncDrillingMacro = function(stencil) {
               cnc.findsurface().then(function () {
                 
                 cnc.setspeed(cnc.SPEED.FULL);
-                cnc.retract();
+                cnc.retract('(After the surface is found)');
                 
                 var _holes = holesfordiameter.slice(0);
                 
                 for (var k = 0; k < _holes.length; k++) {
                     
-                    cnc.movexyto(_holes[k].origin, 'move to hole ' + _holes[k].id);
+                    cnc.movexyto(_holes[k].origin, 'Move XY to hole ' + _holes[k].id);
 
                     cnc.drill({
                         speed: cnc.SPEED.SIXTEENTH,
                         depth: 3.2,
                         retract: 2
-                    }, '');
+                    }, 'Drill 3.2mm deel');
                   
-                    cnc.retract();
+                    cnc.retract('(after drilling)');
                 }
                 
                 cnc.milestone('diameter' + _diameter);
