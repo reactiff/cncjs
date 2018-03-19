@@ -37,8 +37,8 @@ var cnc = new (function () {
 
     var _msgno = 0;
 
-    var _enqueuemessage = function (msg) {
-        var cmd = { number: ++_msgno, message: msg, info: _info };
+    var _milestone = function (id) {
+        var cmd = { number: ++_msgno, message: "msg.mls." + id, info: "Milestone reached" };
         if (_offlinemode) {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
@@ -47,7 +47,17 @@ var cnc = new (function () {
             cmdexecuting = true;
             _executeNextCommand();
         }
-    }
+    };
+
+    var _awaitMilestone = function (id) {
+        return new Promise((resolve, reject) => {
+            cnc.subscribe('milestone:' + id, function () {
+                cnc.unsubscribe('milestone:' + id);
+                resolve();
+            });
+        });
+    };
+
     var _move = function (v) {
 
         var msg;
@@ -117,7 +127,10 @@ var cnc = new (function () {
         _this.pos = {};
         _this.pos.current = new Vector(0, 0, 0);
 
-        _this.setorigin = () => { _this.pos.current = new Vector(0, 0, 0); };
+        _this.setorigin = () => {
+            _this.pos.home = new Vector(0, 0, 0);
+            _this.pos.current = new Vector(0, 0, 0);
+        };
 
         var _drawingcontext;
         _this.setcanvas = (canvas) => {
@@ -150,7 +163,7 @@ var cnc = new (function () {
 
                         if (!_this.simulator) {
                             if (!_this.autosurfaceprobe) {
-                                if (!confirm('Surface reached!!!\n\nTO CONTINUE:\n1) Remove the probe from the tool\n2) Power up the tool\n\nBegin cutting?')) {
+                                if (!confirm('Surface reached!!!\n\nTO CONTINUE:\n1) Remove the Surface Sensors \n2) Power up the tool\n\nbefore pressing continue...')) {
                                     return;
                                 }
                             }
@@ -174,7 +187,7 @@ var cnc = new (function () {
                     var msg = 'm3d.' +
                         _this.axis.X.getvector(0) + '.' +
                         _this.axis.Y.getvector(0) + '.' +
-                        _this.axis.Z.getvector(10);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
+                        _this.axis.Z.getvector(100);  //move z far down until the surface is reached, the interrupt should stop it from traveling too far
 
                     socket.send(msg);
 
@@ -277,6 +290,10 @@ var cnc = new (function () {
         var _defaultDrillOptions = { speed: _this.SPEED.SIXTEENTH, depth: 4.2, tooldiameter: 4, retract: 2 };
         _this.drill = (options) => {
             var drilloptions = options || _defaultDrillOptions;
+            if (!drilloptions.speed) { drilloptions.speed = _defaultDrillOptions.speed; }
+            if (!drilloptions.depth) { drilloptions.depth = _defaultDrillOptions.depth; }
+            if (!drilloptions.retract) { drilloptions.retract = _defaultDrillOptions.retract; }
+
             _this._applyspeed(drilloptions.speed);
 
             _this.movezto(drilloptions.depth);
@@ -290,7 +307,8 @@ var cnc = new (function () {
             _this.move(_this.pos.current.diffxy(coord));
         };
 
-        _this.enqueue = _enqueuemessage;
+        _this.milestone = _milestone;
+        _this.awaitMilestone = _awaitMilestone;
 
         return _this;
 
