@@ -1,8 +1,11 @@
 var CncWSCommMessageHandler = function(evt, flags, number) {
   console.log('(machine)--->[MSG]: ' + evt.data);
   cnc.notify(evt.data);
-  if (evt.data == 'm3d.ok') {
+  if (evt.data === 'm3d.ok') {
       cnc.executeNextCommand();
+  }
+  else if (evt.data.substring(0,3) === 'int.') {
+      cnc.interruptOccured();
   }
 };
     
