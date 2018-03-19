@@ -47,10 +47,7 @@ var cnc = new (function () {
             $('body').append($e('div.command', $e('span.number', cmd.number), $e('span.message', cmd.message)));
         }
         cmdqueue.push(cmd);
-        if (!cmdexecuting) {
-            cmdexecuting = true;
-            _executeNextCommand();
-        }
+        _executeNextCommand();
     };
 
     var _awaitMilestone = function (id) {
