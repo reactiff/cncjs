@@ -22,8 +22,8 @@ var LinearStage = function (options) {
         });
     };
 
-    var _writePin = function (pin, data) {
-        _send('exe', 'pin', pin.toString().padStart(2, '0'), data);
+    var _writePin = function (pin, data, async) {
+        _send('exe', 'pin', pin.toString().padStart(2, '0'), data, async);
     };
 
     var _setspeed = (speed) => {
@@ -158,12 +158,12 @@ var LinearStage = function (options) {
         _this.engage = function (direction, stepsize) {
             _setstepsize(stepsize);
             direction = _adjustdir(parseInt(direction));
-            _writePin(_this.pins.dir, direction);
-            _send('pwm', 'pin', _this.pins.pwm.toString().padStart(2, "0"), '001', '001', _easing);
+            _writePin(_this.pins.dir, direction, 1);
+            _send('pwm', 'pin', _this.pins.pwm.toString().padStart(2, "0"), '001', '001', 1);
         };
 
         _this.disengage = function () {
-            _writePin(_this.pins.pwm, 0);
+            _writePin(_this.pins.pwm, 0, 1);
         };
 
         _this.move = _move;
