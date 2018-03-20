@@ -167,7 +167,7 @@ var LinearStage = function (options) {
         };
 
         _this.engage = function (direction, stepsize) {
-            _setstepsize(stepsize);
+            _applyspeed(cnc.SPEED.FULL);
             direction = _adjustdir(parseInt(direction));
             _writePin(_this.pins.dir, direction, 1);
             _send('pwm', 'pin', _this.pins.pwm.toString().padStart(2, "0"), '001', '001', 1);
