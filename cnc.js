@@ -293,7 +293,7 @@ var cnc = new (function () {
                 
                 var cmd = { number: ++_msgno, message: null, info: 'Set ' + key + ' step size'};
 
-                cmd.message = 'mot.stp.' +
+                cmd.message = 'mot.stp.0.' +
                     _this.axis[key].pins.ms1.toString().padStart(2, "0") + '.' +
                     _this.axis[key].pins.ms2.toString().padStart(2, "0") + '.' +
                     _this.axis[key].pins.ms3.toString().padStart(2, "0") + '.' +
