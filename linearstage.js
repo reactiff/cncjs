@@ -12,6 +12,17 @@ var LinearStage = function (options) {
 
     var _executing = false;
 
+    var _applyspeed = function(speed){
+        var msg = 'axi.stp.' +
+            _this.pins.ms1.toString().padStart(2, "0") + '.' +
+            _this.pins.ms2.toString().padStart(2, "0") + '.' +
+            _this.pins.ms3.toString().padStart(2, "0") + '.' +
+            speed.step;
+        cnc.connect().then(function (socket) {
+            socket.send(cmd.message);
+        });
+    };
+    
     var _send = function (/* a comma separated argument list */) {
         if (cnc.isoffline() || cnc.issimulation()) {
             return;
